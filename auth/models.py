@@ -5,7 +5,7 @@ Authentication and Authorization Models
 from enum import Enum
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 
 
 class Permission(str, Enum):
@@ -97,7 +97,7 @@ ROLE_PERMISSIONS = {
 class User(BaseModel):
     """User model"""
     id: str
-    email: EmailStr
+    email: str
     full_name: str
     role: Role
     api_key: Optional[str] = None
