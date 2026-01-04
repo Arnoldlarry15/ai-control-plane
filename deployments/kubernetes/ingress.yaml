@@ -1,0 +1,29 @@
+# Kubernetes Ingress for AI Control Plane
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ai-control-plane
+  namespace: ai-governance
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+spec:
+  tls:
+  - hosts:
+    - ai-control-plane.example.com
+    secretName: ai-control-plane-tls
+  rules:
+  - host: ai-control-plane.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-control-plane
+            port:
+              number: 80

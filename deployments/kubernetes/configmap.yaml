@@ -1,0 +1,41 @@
+# ConfigMap for AI Control Plane configuration
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-control-plane-config
+  namespace: ai-governance
+data:
+  # Application configuration
+  environment: "production"
+  log_level: "INFO"
+  
+  # Gateway configuration
+  gateway_host: "0.0.0.0"
+  gateway_port: "8000"
+  
+  # Policy configuration
+  policy_enforcement: "strict"
+  default_action: "block"
+  
+  # Observability configuration
+  enable_audit_log: "true"
+  log_retention_days: "365"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-control-plane-secrets
+  namespace: ai-governance
+type: Opaque
+stringData:
+  # Admin API key (change in production!)
+  admin_api_key: "CHANGE_ME_IN_PRODUCTION"
+  
+  # Database credentials (if using external DB)
+  # db_username: "ai_control_plane"
+  # db_password: "CHANGE_ME"
+  
+  # LLM API keys (if needed)
+  # openai_api_key: ""
+  # anthropic_api_key: ""
