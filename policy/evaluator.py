@@ -192,7 +192,7 @@ policy:
   description: "Detects and blocks common PII patterns"
   rules:
     - condition:
-        input_matches_pattern: "\\d{3}-\\d{2}-\\d{4}"
+        input_matches_pattern: "\\\\d{3}-\\\\d{2}-\\\\d{4}"
       action: block
       reason: "SSN pattern detected"
     

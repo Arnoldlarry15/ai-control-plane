@@ -20,12 +20,27 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Initialize services (in production, use dependency injection)
-executor = Executor()
-kill_switch = KillSwitchService()
-registry = RegistryService()
-policy_evaluator = PolicyEvaluator()
-obs_logger = ObservabilityLogger()
+# Import singleton services
+from gateway.services import (
+    get_registry,
+    get_kill_switch,
+    get_policy_evaluator,
+    get_observability_logger,
+)
+
+# Initialize services (singletons)
+registry = get_registry()
+kill_switch = get_kill_switch()
+policy_evaluator = get_policy_evaluator()
+obs_logger = get_observability_logger()
+
+# Initialize executor with shared services
+executor = Executor(
+    kill_switch=kill_switch,
+    registry=registry,
+    policy_evaluator=policy_evaluator,
+    obs_logger=obs_logger,
+)
 
 
 # Request/Response models
@@ -79,22 +94,16 @@ async def execute_agent(request: ExecuteRequest):
     """
     logger.info(f"Execution request for agent={request.agent_id} user={request.user}")
     
-    try:
-        # Execute through the executor (handles full flow)
-        result = await executor.execute(
-            agent_id=request.agent_id,
-            prompt=request.prompt,
-            context=request.context,
-            user=request.user,
-        )
-        
-        return ExecuteResponse(**result)
+    # Execute through the executor (handles full flow)
+    # Let ControlPlaneErrors bubble up to be handled by error handlers
+    result = await executor.execute(
+        agent_id=request.agent_id,
+        prompt=request.prompt,
+        context=request.context,
+        user=request.user,
+    )
     
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Execution error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal execution error")
+    return ExecuteResponse(**result)
 
 
 # Agent registration
@@ -103,25 +112,20 @@ async def register_agent(request: RegisterAgentRequest):
     """Register a new AI agent."""
     logger.info(f"Registering agent: {request.name}")
     
-    try:
-        agent = registry.register_agent(
-            name=request.name,
-            model=request.model,
-            risk_level=request.risk_level,
-            policies=request.policies,
-            metadata=request.metadata,
-        )
-        
-        return {
-            "agent_id": agent["id"],
-            "status": "registered",
-            "risk_level": agent["risk_level"],
-            "policies": agent["policies"],
-        }
+    agent = registry.register_agent(
+        name=request.name,
+        model=request.model,
+        risk_level=request.risk_level,
+        policies=request.policies,
+        metadata=request.metadata,
+    )
     
-    except Exception as e:
-        logger.error(f"Registration error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Registration failed")
+    return {
+        "agent_id": agent["id"],
+        "status": "registered",
+        "risk_level": agent["risk_level"],
+        "policies": agent["policies"],
+    }
 
 
 @router.get("/agents/{agent_id}")

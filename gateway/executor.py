@@ -17,10 +17,6 @@ from gateway.errors import (
     AgentNotFoundError,
     ExecutionError,
 )
-from kill_switch.service import KillSwitchService
-from registry.service import RegistryService
-from policy.evaluator import PolicyEvaluator
-from observability.logger import ObservabilityLogger
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +35,24 @@ class Executor:
     Fail closed. Always.
     """
     
-    def __init__(self):
-        self.kill_switch = KillSwitchService()
-        self.registry = RegistryService()
-        self.policy_evaluator = PolicyEvaluator()
-        self.obs_logger = ObservabilityLogger()
+    def __init__(self, kill_switch=None, registry=None, policy_evaluator=None, obs_logger=None):
+        # Use injected services or import and get singletons
+        if kill_switch is None or registry is None or policy_evaluator is None or obs_logger is None:
+            from gateway.services import (
+                get_kill_switch,
+                get_registry,
+                get_policy_evaluator,
+                get_observability_logger,
+            )
+            self.kill_switch = kill_switch or get_kill_switch()
+            self.registry = registry or get_registry()
+            self.policy_evaluator = policy_evaluator or get_policy_evaluator()
+            self.obs_logger = obs_logger or get_observability_logger()
+        else:
+            self.kill_switch = kill_switch
+            self.registry = registry
+            self.policy_evaluator = policy_evaluator
+            self.obs_logger = obs_logger
         
         logger.info("Executor initialized. The choke point is ready.")
     
