@@ -1,0 +1,52 @@
+{
+  "name": "@ai-control-plane/sdk",
+  "version": "1.0.0",
+  "description": "TypeScript/JavaScript SDK for AI Control Plane - Enterprise AI Governance",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "governance",
+    "policy",
+    "control-plane",
+    "compliance",
+    "audit",
+    "llm",
+    "ai-safety"
+  ],
+  "author": "AI Control Plane Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Arnoldlarry15/ai-control-plane.git",
+    "directory": "sdk/typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/Arnoldlarry15/ai-control-plane/issues"
+  },
+  "homepage": "https://github.com/Arnoldlarry15/ai-control-plane#readme",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

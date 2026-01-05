@@ -61,3 +61,10 @@ logs/
 tmp/
 temp/
 *.tmp
+
+# Node.js (for TypeScript SDK)
+node_modules/
+package-lock.json
+yarn.lock
+*.tsbuildinfo
+
