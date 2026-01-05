@@ -57,23 +57,34 @@ class ComplianceValidator:
         for standard in standards:
             try:
                 policy = self._get_policy(standard)
+                
+                # Create a fake agent with this policy for evaluation
+                fake_agent = {
+                    "id": "compliance-validator",
+                    "name": "Compliance Validator",
+                    "policies": [policy.id],
+                }
+                
+                # Register policy with evaluator temporarily
+                self.evaluator._policies[policy.id] = policy
+                
+                # Evaluate
                 evaluation = self.evaluator.evaluate(
-                    policy=policy,
-                    agent_id="compliance-check",
+                    agent=fake_agent,
                     prompt=input_text,
-                    context=context or {}
+                    context=context or {},
+                    user="compliance-check"
                 )
                 
-                if evaluation.decision in ["block", "escalate"]:
+                if evaluation["action"] in ["block", "escalate"]:
                     violation = {
                         "standard": standard.upper(),
-                        "severity": "critical" if evaluation.decision == "block" else "warning",
-                        "reason": evaluation.reason,
-                        "rule_matched": evaluation.matching_rules[0] if evaluation.matching_rules else None,
-                        "compliance_reference": self._extract_reference(evaluation.reason),
+                        "severity": "critical" if evaluation["action"] == "block" else "warning",
+                        "reason": evaluation.get("reason", "Policy violation"),
+                        "action": evaluation["action"],
                     }
                     
-                    if evaluation.decision == "block":
+                    if evaluation["action"] == "block":
                         results["compliant"] = False
                         results["violations"].append(violation)
                     else:
