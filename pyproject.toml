@@ -82,6 +82,8 @@ addopts = "-v --cov=. --cov-report=html --cov-report=term"
 
 [tool.setuptools]
 packages = [
+    "core",
+    "core.models",
     "gateway",
     "registry", 
     "policy",
