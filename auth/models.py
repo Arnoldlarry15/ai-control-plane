@@ -45,6 +45,7 @@ class Role(str, Enum):
     OPERATOR = "operator"
     DEVELOPER = "developer"
     AUDITOR = "auditor"
+    APPROVER = "approver"
     USER = "user"
 
 
@@ -87,6 +88,13 @@ ROLE_PERMISSIONS = {
         Permission.AUDIT_READ,
         Permission.AUDIT_EXPORT,
         Permission.APPROVE_READ,
+    ],
+    Role.APPROVER: [
+        Permission.AGENT_READ,
+        Permission.POLICY_READ,
+        Permission.APPROVE,
+        Permission.APPROVE_READ,
+        Permission.AUDIT_READ,
     ],
     Role.USER: [
         Permission.EXECUTE,

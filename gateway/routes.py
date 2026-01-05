@@ -584,3 +584,427 @@ async def generate_compliance_report(
     except Exception as e:
         logger.error(f"Compliance report generation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Phase 2: Trust & Compliance Endpoints
+# ============================================================================
+
+# Approval Workflow endpoints
+
+class ApprovalActionRequest(BaseModel):
+    """Request to approve or reject an approval"""
+    reviewer: str = Field(..., description="Reviewer identifier")
+    reviewer_role: str = Field(default="approver", description="Reviewer role")
+    rationale: str = Field(..., description="Decision rationale")
+    comment: Optional[str] = Field(None, description="Additional comment")
+
+
+@router.get("/approvals/pending")
+async def get_pending_approvals(limit: int = 100):
+    """
+    Get all pending approval requests.
+    
+    Returns list of approvals awaiting human review.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        return approval_service.get_pending(limit=limit)
+    except Exception as e:
+        logger.error(f"Failed to get pending approvals: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/approvals/workflows")
+async def list_approval_workflows():
+    """
+    List available approval workflows.
+    
+    Returns configured workflows with timeout and escalation settings.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        
+        workflows = {}
+        for workflow_id, workflow in approval_service.workflows.items():
+            workflows[workflow_id] = {
+                "workflow_id": workflow.workflow_id,
+                "name": workflow.name,
+                "description": workflow.description,
+                "required_approver_roles": workflow.required_approver_roles,
+                "required_approvals": workflow.required_approvals,
+                "timeout_seconds": workflow.timeout_seconds,
+                "timeout_action": workflow.timeout_action,
+                "escalation_rules_count": len(workflow.escalation_rules),
+            }
+        
+        return {
+            "workflows": workflows,
+            "count": len(workflows),
+        }
+    except Exception as e:
+        logger.error(f"Failed to list workflows: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/approvals/stats")
+async def get_approval_stats():
+    """
+    Get approval queue statistics.
+    
+    Returns metrics on pending, approved, rejected, and timed-out approvals.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        return approval_service.get_stats()
+    except Exception as e:
+        logger.error(f"Failed to get approval stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/approvals/{approval_id}")
+async def get_approval_status(approval_id: str):
+    """
+    Get approval status with decision history.
+    
+    Returns complete approval information including decision rationale.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        status = approval_service.get_status(approval_id)
+        
+        if not status:
+            raise HTTPException(status_code=404, detail="Approval not found")
+        
+        return status
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get approval status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/approvals/{approval_id}/approve")
+async def approve_request(approval_id: str, request: ApprovalActionRequest):
+    """
+    Approve an approval request with rationale.
+    
+    Requires:
+    - Reviewer identifier
+    - Reviewer role (must have APPROVE permission)
+    - Decision rationale (mandatory for compliance)
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        
+        result = approval_service.approve(
+            approval_id=approval_id,
+            reviewer=request.reviewer,
+            reviewer_role=request.reviewer_role,
+            rationale=request.rationale,
+            comment=request.comment,
+        )
+        
+        return result
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to approve request: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/approvals/{approval_id}/reject")
+async def reject_request(approval_id: str, request: ApprovalActionRequest):
+    """
+    Reject an approval request with rationale.
+    
+    Requires:
+    - Reviewer identifier
+    - Reviewer role (must have APPROVE permission)
+    - Decision rationale (mandatory for compliance)
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        
+        result = approval_service.reject(
+            approval_id=approval_id,
+            reviewer=request.reviewer,
+            reviewer_role=request.reviewer_role,
+            rationale=request.rationale,
+            comment=request.comment,
+        )
+        
+        return result
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to reject request: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/approvals/{approval_id}/history")
+async def get_approval_history(approval_id: str):
+    """
+    Get complete decision history for an approval.
+    
+    Returns all decision records with rationale for compliance auditing.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        
+        history = approval_service.get_decision_history(approval_id)
+        
+        return {
+            "approval_id": approval_id,
+            "decision_history": history,
+            "count": len(history),
+        }
+    except Exception as e:
+        logger.error(f"Failed to get approval history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# OIDC Authentication endpoints
+
+class OIDCConfigRequest(BaseModel):
+    """Request to configure OIDC provider"""
+    provider_name: str = Field(..., description="Provider name (e.g., auth0, okta)")
+    issuer: str = Field(..., description="OIDC issuer URL")
+    client_id: str = Field(..., description="Application client ID")
+    client_secret: Optional[str] = Field(None, description="Client secret")
+    redirect_uri: str = Field(..., description="Redirect URI")
+    audience: Optional[str] = Field(None, description="API audience (Auth0)")
+
+
+@router.post("/auth/oidc/configure")
+async def configure_oidc_provider(request: OIDCConfigRequest):
+    """
+    Configure an OIDC identity provider.
+    
+    Supports Auth0, Okta, Azure AD, Google, and other OIDC-compliant providers.
+    """
+    try:
+        from auth.oidc import OIDCConfig, OIDCService
+        
+        config = OIDCConfig(
+            issuer=request.issuer,
+            client_id=request.client_id,
+            client_secret=request.client_secret,
+            redirect_uri=request.redirect_uri,
+            audience=request.audience,
+        )
+        
+        oidc_service = OIDCService()
+        provider = oidc_service.add_provider(request.provider_name, config)
+        
+        return {
+            "status": "configured",
+            "provider_name": request.provider_name,
+            "issuer": config.issuer,
+            "client_id": config.client_id,
+        }
+    except Exception as e:
+        logger.error(f"Failed to configure OIDC provider: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/auth/oidc/{provider_name}/authorize-url")
+async def get_oidc_authorization_url(
+    provider_name: str,
+    state: Optional[str] = None
+):
+    """
+    Get OIDC authorization URL for OAuth flow.
+    
+    Returns the URL to redirect users to for authentication.
+    """
+    try:
+        from auth.oidc import OIDCService
+        
+        oidc_service = OIDCService()
+        provider = oidc_service.get_provider(provider_name)
+        
+        if not provider:
+            raise HTTPException(
+                status_code=404,
+                detail=f"OIDC provider not found: {provider_name}"
+            )
+        
+        auth_url = provider.get_authorization_url(state=state)
+        
+        return {
+            "authorization_url": auth_url,
+            "provider_name": provider_name,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get authorization URL: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class OIDCTokenRequest(BaseModel):
+    """Request to validate OIDC token"""
+    provider_name: str = Field(..., description="Provider name")
+    token: str = Field(..., description="Access token or ID token")
+
+
+@router.post("/auth/oidc/validate")
+async def validate_oidc_token(request: OIDCTokenRequest):
+    """
+    Validate an OIDC token and extract user information.
+    
+    Returns user info including roles and permissions from the token.
+    """
+    try:
+        from auth.oidc import OIDCService
+        
+        oidc_service = OIDCService()
+        user_info = oidc_service.authenticate(
+            provider_name=request.provider_name,
+            token=request.token
+        )
+        
+        if not user_info:
+            raise HTTPException(
+                status_code=401,
+                detail="Token validation failed"
+            )
+        
+        return {
+            "authenticated": True,
+            "user_info": user_info.model_dump(),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to validate token: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Enhanced Compliance endpoints
+
+@router.get("/compliance/standards")
+async def list_compliance_standards():
+    """
+    List all available compliance standards.
+    
+    Returns all compliance packs including GDPR, HIPAA, SOC 2, PCI-DSS,
+    NIST AI RMF, and EU AI Act.
+    """
+    try:
+        from policy.compliance import ComplianceLoader
+        
+        loader = ComplianceLoader()
+        standards = loader.list_standards()
+        
+        return {
+            "standards": standards,
+            "count": len(standards),
+        }
+    except Exception as e:
+        logger.error(f"Failed to list compliance standards: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/compliance/standards/{standard}")
+async def get_compliance_standard_details(standard: str):
+    """
+    Get details about a specific compliance standard.
+    
+    Returns policy information without loading the full policy.
+    """
+    try:
+        from policy.compliance import ComplianceLoader
+        
+        loader = ComplianceLoader()
+        info = loader.get_policy_info(standard)
+        
+        return info
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to get compliance standard: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class ComplianceValidationRequest(BaseModel):
+    """Request to validate compliance"""
+    input_text: str = Field(..., description="Text to validate")
+    standards: List[str] = Field(..., description="Standards to check against")
+
+
+@router.post("/compliance/validate")
+async def validate_compliance(request: ComplianceValidationRequest):
+    """
+    Validate input against compliance standards.
+    
+    Checks input text for compliance violations across specified standards.
+    Returns violations found and compliance status.
+    
+    Note:
+        V1 Implementation: Basic structure and policy loading.
+        
+        Current behavior: Loads policies but does not perform actual validation
+        against input text. This is a placeholder implementation.
+        
+        V2 Enhancement: Implement actual policy evaluation:
+        1. Parse input text for sensitive patterns
+        2. Evaluate against policy rules
+        3. Detect violations and classify severity
+        4. Generate actionable recommendations
+        
+        For now, this endpoint confirms policy availability and structure.
+    """
+    try:
+        from policy.compliance import ComplianceLoader
+        from policy.evaluator import PolicyEvaluator
+        
+        loader = ComplianceLoader()
+        evaluator = PolicyEvaluator()
+        
+        results = {}
+        violations = []
+        
+        for standard in request.standards:
+            try:
+                policy = loader.load_policy(standard)
+                
+                # V1: Simplified check - confirms policy loads successfully
+                # TODO V2: Implement actual policy evaluation against input_text
+                results[standard] = {
+                    "compliant": True,  # V1: Placeholder - always returns true
+                    "violations": [],
+                    "rules_checked": len(policy.rules),
+                    "note": "V1: Policy structure validated. Full evaluation coming in V2."
+                }
+            except Exception as e:
+                logger.warning(f"Failed to check {standard}: {e}")
+                results[standard] = {
+                    "compliant": False,
+                    "error": str(e),
+                }
+        
+        return {
+            "input_text": request.input_text[:100] + "..." if len(request.input_text) > 100 else request.input_text,
+            "standards_checked": request.standards,
+            "results": results,
+            "overall_compliant": all(
+                r.get("compliant", False) for r in results.values()
+            ),
+            "note": "V1 implementation: Policy loading validated. Full text analysis coming in V2."
+        }
+    except Exception as e:
+        logger.error(f"Compliance validation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

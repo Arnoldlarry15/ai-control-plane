@@ -24,6 +24,8 @@ class ComplianceLoader:
     - HIPAA (Health Insurance Portability and Accountability Act)
     - SOC 2 (Service Organization Control 2)
     - PCI-DSS (Payment Card Industry Data Security Standard)
+    - NIST AI RMF (AI Risk Management Framework)
+    - EU AI Act (European Union Artificial Intelligence Act)
     """
     
     COMPLIANCE_STANDARDS = {
@@ -31,6 +33,8 @@ class ComplianceLoader:
         "hipaa": "HIPAA (US Health Insurance Portability and Accountability Act)",
         "soc2": "SOC 2 (Trust Services Criteria)",
         "pci-dss": "PCI-DSS (Payment Card Industry Data Security Standard)",
+        "nist-ai-rmf": "NIST AI RMF (AI Risk Management Framework)",
+        "eu-ai-act": "EU AI Act (European Union Artificial Intelligence Act)",
     }
     
     def __init__(self):
@@ -52,7 +56,7 @@ class ComplianceLoader:
         Load a compliance policy by standard name.
         
         Args:
-            standard: Compliance standard ID (gdpr, hipaa, soc2, pci-dss)
+            standard: Compliance standard ID (gdpr, hipaa, soc2, pci-dss, nist-ai-rmf, eu-ai-act)
             
         Returns:
             Loaded policy
