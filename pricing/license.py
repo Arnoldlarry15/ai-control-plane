@@ -7,7 +7,7 @@ Manages license keys and feature gates for enterprise deployments.
 import logging
 import secrets
 import hashlib
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 
 from pricing.models import (
@@ -115,7 +115,7 @@ class LicenseManager:
         
         return f"ACP-{tier_prefix}-{org_hash}-{random_suffix}"
     
-    def validate_license(self, key: str) -> tuple[bool, Optional[str]]:
+    def validate_license(self, key: str) -> Tuple[bool, Optional[str]]:
         """
         Validate a license key.
         
@@ -156,7 +156,7 @@ class LicenseManager:
     
     def check_feature_access(
         self, key: str, feature: str
-    ) -> tuple[bool, Optional[str]]:
+    ) -> Tuple[bool, Optional[str]]:
         """
         Check if license has access to a feature.
         
@@ -184,7 +184,7 @@ class LicenseManager:
     
     def check_limit(
         self, key: str, limit_type: str, current_value: int
-    ) -> tuple[bool, Optional[str]]:
+    ) -> Tuple[bool, Optional[str]]:
         """
         Check if within license limits.
         
