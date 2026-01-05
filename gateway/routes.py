@@ -616,6 +616,55 @@ async def get_pending_approvals(limit: int = 100):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/approvals/workflows")
+async def list_approval_workflows():
+    """
+    List available approval workflows.
+    
+    Returns configured workflows with timeout and escalation settings.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        
+        workflows = {}
+        for workflow_id, workflow in approval_service.workflows.items():
+            workflows[workflow_id] = {
+                "workflow_id": workflow.workflow_id,
+                "name": workflow.name,
+                "description": workflow.description,
+                "required_approver_roles": workflow.required_approver_roles,
+                "required_approvals": workflow.required_approvals,
+                "timeout_seconds": workflow.timeout_seconds,
+                "timeout_action": workflow.timeout_action,
+                "escalation_rules_count": len(workflow.escalation_rules),
+            }
+        
+        return {
+            "workflows": workflows,
+            "count": len(workflows),
+        }
+    except Exception as e:
+        logger.error(f"Failed to list workflows: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/approvals/stats")
+async def get_approval_stats():
+    """
+    Get approval queue statistics.
+    
+    Returns metrics on pending, approved, rejected, and timed-out approvals.
+    """
+    try:
+        from approval.service import ApprovalService
+        approval_service = ApprovalService()
+        return approval_service.get_stats()
+    except Exception as e:
+        logger.error(f"Failed to get approval stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/approvals/{approval_id}")
 async def get_approval_status(approval_id: str):
     """
@@ -723,55 +772,6 @@ async def get_approval_history(approval_id: str):
         }
     except Exception as e:
         logger.error(f"Failed to get approval history: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/approvals/workflows")
-async def list_approval_workflows():
-    """
-    List available approval workflows.
-    
-    Returns configured workflows with timeout and escalation settings.
-    """
-    try:
-        from approval.service import ApprovalService
-        approval_service = ApprovalService()
-        
-        workflows = {}
-        for workflow_id, workflow in approval_service.workflows.items():
-            workflows[workflow_id] = {
-                "workflow_id": workflow.workflow_id,
-                "name": workflow.name,
-                "description": workflow.description,
-                "required_approver_roles": workflow.required_approver_roles,
-                "required_approvals": workflow.required_approvals,
-                "timeout_seconds": workflow.timeout_seconds,
-                "timeout_action": workflow.timeout_action,
-                "escalation_rules_count": len(workflow.escalation_rules),
-            }
-        
-        return {
-            "workflows": workflows,
-            "count": len(workflows),
-        }
-    except Exception as e:
-        logger.error(f"Failed to list workflows: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/approvals/stats")
-async def get_approval_stats():
-    """
-    Get approval queue statistics.
-    
-    Returns metrics on pending, approved, rejected, and timed-out approvals.
-    """
-    try:
-        from approval.service import ApprovalService
-        approval_service = ApprovalService()
-        return approval_service.get_stats()
-    except Exception as e:
-        logger.error(f"Failed to get approval stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -939,11 +939,14 @@ async def get_compliance_standard_details(standard: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/compliance/validate")
-async def validate_compliance(
-    input_text: str = Field(..., description="Text to validate"),
+class ComplianceValidationRequest(BaseModel):
+    """Request to validate compliance"""
+    input_text: str = Field(..., description="Text to validate")
     standards: List[str] = Field(..., description="Standards to check against")
-):
+
+
+@router.post("/compliance/validate")
+async def validate_compliance(request: ComplianceValidationRequest):
     """
     Validate input against compliance standards.
     
@@ -960,7 +963,7 @@ async def validate_compliance(
         results = {}
         violations = []
         
-        for standard in standards:
+        for standard in request.standards:
             try:
                 policy = loader.load_policy(standard)
                 
@@ -979,8 +982,8 @@ async def validate_compliance(
                 }
         
         return {
-            "input_text": input_text[:100] + "..." if len(input_text) > 100 else input_text,
-            "standards_checked": standards,
+            "input_text": request.input_text[:100] + "..." if len(request.input_text) > 100 else request.input_text,
+            "standards_checked": request.standards,
             "results": results,
             "overall_compliant": all(
                 r.get("compliant", False) for r in results.values()
