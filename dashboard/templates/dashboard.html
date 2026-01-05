@@ -245,8 +245,8 @@
         // Auto-refresh functionality
         async function refreshData() {
             try {
-                // Fetch recent events
-                const response = await fetch('/api/recent_events');
+                // Fetch recent events (use relative path to work with dashboard mount)
+                const response = await fetch('./api/recent_events');
                 const events = await response.json();
                 
                 // Update event list

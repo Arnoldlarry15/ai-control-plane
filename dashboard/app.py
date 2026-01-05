@@ -110,38 +110,44 @@ class DashboardApp:
         }
         
         # Get real data from services if available
-        if self.registry_service:
-            agents = self.registry_service.list_agents()
-            stats["active_agents"] = len([a for a in agents if a.status == "active"])
+        try:
+            if self.registry_service:
+                agents = self.registry_service.list_agents()
+                stats["active_agents"] = len([a for a in agents if a.status == "active"])
+        except Exception as e:
+            logger.warning(f"Error fetching agent data: {e}")
         
-        if self.kill_switch_service:
-            stats["kill_switch_active"] = self.kill_switch_service.is_active()
+        try:
+            if self.kill_switch_service:
+                stats["kill_switch_active"] = self.kill_switch_service.is_active()
+        except Exception as e:
+            logger.warning(f"Error fetching kill switch status: {e}")
         
-        if self.obs_logger:
-            try:
-                # Get logs from the last 24 hours
-                logs = self.obs_logger.get_recent_logs(limit=1000)
-                stats["total_executions"] = len(logs)
-                
-                # Count violations
-                violations = [log for log in logs if log.get("event_type") == "policy_violation"]
-                stats["policy_violations"] = len(violations)
-                
-                # Calculate success rate
-                successful = [log for log in logs if log.get("status") == "success"]
+        try:
+            if self.obs_logger:
+                # Get logs from the observability service
+                logs = self.obs_logger.query_logs(limit=1000)
                 if logs:
+                    stats["total_executions"] = len(logs)
+                    
+                    # Count violations
+                    violations = [log for log in logs if log.get("event_type") == "policy_violation"]
+                    stats["policy_violations"] = len(violations)
+                    
+                    # Calculate success rate
+                    successful = [log for log in logs if log.get("status") == "success"]
                     stats["success_rate"] = round((len(successful) / len(logs)) * 100, 1)
-                
-                # Calculate average response time
-                response_times = [
-                    log.get("response_time_ms", 0) 
-                    for log in logs 
-                    if log.get("response_time_ms")
-                ]
-                if response_times:
-                    stats["avg_response_time_ms"] = round(sum(response_times) / len(response_times))
-            except Exception as e:
-                logger.warning(f"Error fetching logs for stats: {e}")
+                    
+                    # Calculate average response time
+                    response_times = [
+                        log.get("response_time_ms", 0) 
+                        for log in logs 
+                        if log.get("response_time_ms")
+                    ]
+                    if response_times:
+                        stats["avg_response_time_ms"] = round(sum(response_times) / len(response_times))
+        except Exception as e:
+            logger.warning(f"Error fetching observability data: {e}")
         
         return stats
     
@@ -149,22 +155,23 @@ class DashboardApp:
         """Get recent audit events"""
         events = []
         
-        if self.obs_logger:
-            try:
-                logs = self.obs_logger.get_recent_logs(limit=50)
-                events = [
-                    {
-                        "timestamp": log.get("timestamp", datetime.utcnow().isoformat()),
-                        "event_type": log.get("event_type", "unknown"),
-                        "agent_id": log.get("agent_id", "unknown"),
-                        "user": log.get("user", "system"),
-                        "status": log.get("status", "unknown"),
-                        "policy": log.get("policy"),
-                    }
-                    for log in logs
-                ]
-            except Exception as e:
-                logger.warning(f"Error fetching recent events: {e}")
+        try:
+            if self.obs_logger:
+                logs = self.obs_logger.query_logs(limit=50)
+                if logs:
+                    events = [
+                        {
+                            "timestamp": log.get("iso_timestamp", log.get("timestamp", datetime.utcnow().isoformat())),
+                            "event_type": log.get("event_type", "unknown"),
+                            "agent_id": log.get("agent_id", "unknown"),
+                            "user": log.get("user", "system"),
+                            "status": log.get("status", "unknown"),
+                            "policy": log.get("policy_id"),
+                        }
+                        for log in logs
+                    ]
+        except Exception as e:
+            logger.warning(f"Error fetching recent events: {e}")
         
         # Fallback to mock data if no real data available
         if not events:
