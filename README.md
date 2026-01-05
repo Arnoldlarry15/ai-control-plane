@@ -1,50 +1,159 @@
 # ai-control-plane
 
-**ai-control-plane** is an open, API-first platform for registering, governing, and observing AI systems.
+**The Operating System for AI Usage in Organizations**
 
-It provides a centralized execution gateway, policy enforcement, audit logging, and human-in-the-loop controls to ensure AI behavior is accountable, interruptible, and safe by default.
+ai-control-plane is not a tool. It's the unavoidable backbone every serious AI deployment runs through.
 
-**This project does not build AI models. It governs how they are used.**
+We don't build AI models. We don't compete with OpenAI, Anthropic, or others.  
+We sit above, between, and across all of them.
+
+**Think Salesforce for AI**: The system of record, the control surface, and the default operating layer for how organizations use AI.
+
+## What This Means
+
+- **You keep using your AI models** - GPT-4, Claude, Gemini, whatever you choose
+- **Every request flows through here** - The mandatory choke point
+- **Every decision is logged** - Immutable, cryptographically verified audit trails
+- **Every policy is declarative** - Business rules, not code
+- **Every action is explainable** - Trust through transparency
+
+**This is platform infrastructure, not a project.**
+
+---
+
+## Why This Matters: The "Salesforce of AI" Blueprint
+
+Salesforce didn't win because CRM was new. They won because they became:
+1. **The System of Record** - Where truth lives
+2. **The Control Surface** - How you manage operations
+3. **The Default Operating Layer** - The unavoidable backbone
+
+We're doing the same for AI.
+
+### Four Core Principles
+
+#### 1. Declarative Over Imperative ✨
+Policies are business rules, not Python code.
+
+```yaml
+# This is what users write:
+policy:
+  name: "High Risk Model Control"
+  when:
+    and:
+      - field: "model"
+        equals: "gpt-4"
+      - field: "risk_level"
+        in: ["high", "critical"]
+  then: "escalate"
+  reason: "High-risk model requires approval"
+```
+
+**Feels like config. That's winning.**
+
+#### 2. System of Record for AI Activity 📋
+Every AI decision is logged with cryptographic integrity.
+
+- **Immutable audit trails** - Append-only with hash chaining
+- **Chain of custody** - Every decision is traceable
+- **Subpoena-ready exports** - Legal compliance built-in
+- **Replayable timelines** - Understand what happened, when, and why
+
+**If an AI decision is questioned, this is the source of truth.**
+
+#### 3. Extensibility Is Non-Negotiable 🔌
+Platform, not product. Built for customization.
+
+- **Plugin architecture** - Custom policies without touching core
+- **Compliance packs** - GDPR, HIPAA, SOC2, PCI-DSS, and yours
+- **Risk scoring modules** - Bring your own models
+- **Lifecycle hooks** - Intercept and augment at any stage
+- **Agent hooks** - pre_execute, post_execute, on_error, on_block
+
+**Think marketplace, not monolith.**
+
+#### 4. Boring Reliability Beats Clever AI 🔒
+We're not here to be magical. We're here to be trusted.
+
+- **Deterministic** - Same input = same output, always
+- **Explainable** - Every decision has plain English reasoning
+- **Fail closed** - Block on error, never silently allow
+- **No surprises** - Prefer "no" over "maybe"
+
+**This is boring by design. That's why it works.**
 
 ---
 
 ## Features
 
-### Core Capabilities
-- 🔐 **Centralized Execution Gateway**: Route all AI model/agent requests through a single control point
-- 📋 **Policy Enforcement**: Define and enforce policies on AI behavior before, during, and after execution
-- 📝 **Audit Logging**: Complete observability and replay of all AI interactions
-- 👤 **Human-in-the-Loop**: Approval queues for sensitive operations
-- 🛑 **Kill Switch**: Emergency controls to halt AI agents instantly
-- 🔌 **API-First Design**: Simple integration via REST API and Python SDK
+### The Unavoidable Backbone
 
-### Production-Ready Features ✨
-- 🔑 **Role-Based Access Control (RBAC)**: Fine-grained permissions with Admin, Operator, Developer, Auditor, and User roles
-- 📜 **Compliance Policy Modules**: Pre-built policies for GDPR, HIPAA, SOC 2, and PCI-DSS
-- 📊 **Observability Dashboard**: Real-time web-based monitoring and metrics
-- ☸️ **Cloud-Native Deployment**: Kubernetes manifests and Helm charts for production
-- 🔄 **CI/CD Pipelines**: GitHub Actions workflows for automated testing and deployment
-- 🔒 **Security First**: Multi-stage Docker builds, network policies, and vulnerability scanning
+- 🔐 **Centralized Gateway** - Single choke point for ALL AI execution
+- 📋 **Declarative Policies** - Business-readable rules with DSL
+- 🔗 **Cryptographic Audit Trail** - Tamper-proof, legally defensible logs
+- 🔌 **Plugin System** - Extensible without modifying core
+- 👤 **Human-in-the-Loop** - Approval workflows for sensitive operations
+- 🛑 **Emergency Kill Switch** - Instant shutdown controls
+- 📊 **Policy Explainability** - Every decision has plain English reasoning
+- 🔄 **Decision Replay** - Reconstruct any execution timeline
+
+### Platform Capabilities
+
+- **Compliance Modules**: Pre-built policies for GDPR, HIPAA, SOC 2, PCI-DSS
+- **Risk Scoring Framework**: Pluggable risk assessment models
+- **Lifecycle Hooks**: Pre/post execution, error handling, blocking events
+- **Policy Templates**: Common use cases ready to deploy
+- **Dry-Run Mode**: Test policies without executing
+- **Conflict Detection**: Identify and resolve policy conflicts
+- **Chain of Custody**: Legal-grade audit trail exports
+
+### Production Infrastructure
+
+- 🔑 **Role-Based Access Control**: Admin, Operator, Developer, Auditor roles
+- ☸️ **Cloud-Native**: Kubernetes manifests and Helm charts
+- 🔒 **Security First**: Cryptographic integrity, fail-closed architecture
+- 📊 **Observability Dashboard**: Real-time monitoring and metrics
+- 🔄 **CI/CD Ready**: GitHub Actions workflows included
 
 ---
 
-## Architecture
+## Architecture: The Operating System View
 
-The control plane consists of several core modules:
+```
+┌─────────────────────────────────────────────────────┐
+│                   Applications                      │
+│         (Your AI agents, chatbots, systems)         │
+└─────────────────┬───────────────────────────────────┘
+                  │
+                  │ All AI requests flow through here
+                  ▼
+┌─────────────────────────────────────────────────────┐
+│              AI CONTROL PLANE                       │
+│         The Operating System Layer                  │
+├─────────────────────────────────────────────────────┤
+│  Gateway │ Registry │ Policy │ Audit │ Kill Switch │
+│          │          │ Engine │ Trail │             │
+├─────────────────────────────────────────────────────┤
+│  Plugins │ Compliance │ Hooks │ Explainer │ DSL    │
+└─────────────────┬───────────────────────────────────┘
+                  │
+                  │ Governed requests
+                  ▼
+┌─────────────────────────────────────────────────────┐
+│             AI Model Providers                      │
+│      OpenAI │ Anthropic │ Google │ Azure │ ...     │
+└─────────────────────────────────────────────────────┘
+```
 
-- **Gateway**: API entry point and request routing
-- **Registry**: Catalog of registered AI models and agents
-- **Policy Engine**: Policy parsing, evaluation, and violation handling with compliance modules
-- **Observability**: Event logging, storage, and replay capabilities
-- **Approval Service**: Human review queue for flagged operations
-- **Kill Switch**: Emergency shutdown and state management
-- **Auth**: Role-based access control and identity management
-- **Dashboard**: Web-based monitoring and observability UI
-- **Compliance**: Pre-built policy modules for GDPR, HIPAA, SOC 2, PCI-DSS
+**Core modules**:
+- **Gateway**: The mandatory choke point
+- **Registry**: System of record for AI agents
+- **Policy Engine**: Declarative rule evaluation with DSL
+- **Audit Trail**: Cryptographically verified, immutable logs
+- **Plugin System**: Extensibility without core changes
+- **Explainer**: Makes every decision transparent
 
 See [docs/architecture.md](docs/architecture.md) for detailed design.
-
----
 
 ## Quick Start
 
@@ -62,52 +171,173 @@ pip install -r requirements.txt
 pip install -e ".[dev]"
 ```
 
-### Running the Gateway
+### Running the Control Plane
 
 ```bash
-# Start the control plane gateway
+# Start the gateway (the choke point)
 python -m gateway.main
 
 # Gateway will be available at http://localhost:8000
+# API docs at http://localhost:8000/api/docs
 ```
 
-### Using the SDK
+### Using the Platform
+
+#### 1. Register Your AI Agent
 
 ```python
 from sdk.python.client import ControlPlaneClient
 
-# Initialize client
 client = ControlPlaneClient(base_url="http://localhost:8000")
 
-# Register an AI agent
+# Register your agent (any model, any provider)
 agent = client.register_agent(
-    name="my-agent",
-    model="gpt-4",
-    policies=["no-pii", "require-approval"]
+    name="my-assistant",
+    model="gpt-4",  # or claude-3, gemini, etc.
+    risk_level="medium",
+    policies=["no-pii", "business-hours", "require-approval-high-cost"]
 )
+```
 
-# Execute through control plane
+#### 2. Execute Through the Control Plane
+
+```python
+# Every request flows through here
 response = client.execute(
     agent_id=agent.id,
-    prompt="Analyze this data...",
-    context={"user": "alice"}
+    prompt="Analyze this customer data...",
+    context={"user": "alice@company.com"}
 )
+
+# Response includes:
+# - AI response (if allowed)
+# - Execution ID (for audit trail)
+# - Decision explanation (why allowed/blocked)
+# - Policy chain (what was evaluated)
+```
+
+#### 3. Declarative Policy Example
+
+```yaml
+# policies/cost-control.yaml
+policy:
+  name: "High Cost Approval"
+  description: "Require approval for expensive operations"
+  
+  when:
+    field: "context.estimated_cost"
+    greater_than: 100
+  
+  then: "escalate"
+  reason: "Estimated cost exceeds $100 threshold"
+```
+
+#### 4. Query the Audit Trail
+
+```python
+# Get complete execution history
+logs = client.get_logs(user="alice@company.com", limit=50)
+
+# Get specific execution with full timeline
+execution = client.get_execution_log(execution_id)
+
+# Verify cryptographic integrity
+integrity = client.verify_audit_integrity()
+
+# Export for compliance (subpoena-ready)
+compliance_export = client.export_audit_trail(
+    start_date="2024-01-01",
+    end_date="2024-12-31",
+    format="json"  # or "csv"
+)
+```
+
+#### 5. Use Plugin System
+
+```python
+from policy.plugins import RiskScorerPlugin, PluginRegistry
+
+# Create custom risk scorer
+class MyRiskScorer(RiskScorerPlugin):
+    @property
+    def plugin_id(self) -> str:
+        return "my-risk-scorer"
+    
+    @property
+    def plugin_name(self) -> str:
+        return "My Industry-Specific Risk Model"
+    
+    def calculate_risk_score(self, agent_id, prompt, context):
+        # Your custom logic
+        return {
+            "score": 75,
+            "level": "high",
+            "factors": ["Industry-specific trigger detected"],
+            "recommendations": ["Review with domain expert"]
+        }
+
+# Register plugin
+registry = PluginRegistry()
+registry.register(MyRiskScorer())
+```
+
+## The North Star Question
+
+**If someone removed your UI, your SDK, and your branding tomorrow, and only left:**
+- Policies
+- Logs
+- Identity
+- Enforcement
+
+**Would enterprises still need it?**
+
+**The answer is yes.** That's what makes this the right thing to build.
+
+---
+
+## Project Structure
+
+```
+ai-control-plane/
+├── gateway/              # The choke point (API gateway)
+├── registry/             # System of record for agents
+├── policy/               # Declarative policy engine
+│   ├── compliance/       # GDPR, HIPAA, SOC2, PCI-DSS
+│   ├── dsl.py           # Business-readable policy DSL
+│   ├── plugins.py        # Plugin architecture
+│   └── explainer.py      # Decision transparency
+├── observability/        # Cryptographic audit trail
+│   ├── audit_trail.py   # Immutable, hash-chained logs
+│   └── logger.py         # Event capture
+├── approval/             # Human-in-the-loop workflows
+├── kill_switch/          # Emergency controls
+├── auth/                 # RBAC and identity
+├── dashboard/            # Observability UI
+├── sdk/                  # Client libraries
+├── deployments/          # K8s/Helm charts
+├── docs/                 # Platform documentation
+└── tests/                # Trust through testing
 ```
 
 ---
 
 ## Documentation
 
-### Core Documentation
-- [Architecture Overview](docs/architecture.md) - System design and components
-- [Policy Specification](docs/policy-spec.md) - Policy language and rules
+### Core Platform Docs
+- [Architecture Overview](docs/architecture.md) - System design and platform philosophy
+- [Policy Specification](docs/policy-spec.md) - Declarative policy DSL guide
 - [Threat Model](docs/threat-model.md) - Security considerations
 - [Demo Walkthrough](docs/demo-walkthrough.md) - Step-by-step examples
 
-### Production Guides
-- [Deployment Guide](docs/deployment-guide.md) - Kubernetes and Helm deployment
-- [RBAC Guide](docs/rbac-guide.md) - Role-based access control setup
-- [Compliance Guide](docs/compliance-guide.md) - GDPR, HIPAA, SOC 2, PCI-DSS policies
+### Adoption Guides
+- [Deployment Guide](docs/deployment-guide.md) - Kubernetes and Helm
+- [RBAC Guide](docs/rbac-guide.md) - Access control setup
+- [Compliance Guide](docs/compliance-guide.md) - GDPR, HIPAA, SOC 2, PCI-DSS
+
+### Extensibility
+- Plugin Development - Creating custom policies (coming soon)
+- Risk Scoring Modules - Custom risk models (coming soon)
+- Lifecycle Hooks - Intercepting execution flow (coming soon)
 
 ---
 
@@ -137,11 +367,9 @@ helm install ai-control-plane deployments/helm/ai-control-plane \
 
 See [Deployment Guide](docs/deployment-guide.md) for complete instructions.
 
----
-
 ## Compliance Modules
 
-Pre-built policies for major compliance standards:
+Pre-built compliance packs for major standards. Load and apply instantly.
 
 ```python
 from policy.compliance import ComplianceLoader
@@ -156,18 +384,109 @@ hipaa = loader.load_policy('hipaa')
 
 # Apply to agent
 agent = client.register_agent(
-    name="healthcare-bot",
+    name="healthcare-assistant",
     policies=["hipaa-compliance", "gdpr-compliance"]
 )
 ```
 
-Available standards:
+**Available standards:**
 - **GDPR**: EU General Data Protection Regulation
 - **HIPAA**: US Health Insurance Portability and Accountability Act
 - **SOC 2**: Trust Services Criteria
 - **PCI-DSS**: Payment Card Industry Data Security Standard
 
+**Plugin your own**: Create custom compliance modules without touching core code.
+
 See [Compliance Guide](docs/compliance-guide.md) for details.
+
+---
+
+## Extensibility: The Platform Advantage
+
+This isn't a tool you configure. It's a platform you extend.
+
+### 1. Plugin Architecture
+
+```python
+from policy.plugins import PolicyPlugin, PluginType
+
+class MyComplianceChecker(PolicyPlugin):
+    @property
+    def plugin_id(self) -> str:
+        return "my-compliance-checker"
+    
+    @property
+    def plugin_type(self) -> PluginType:
+        return PluginType.COMPLIANCE_MODULE
+    
+    def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        # Your compliance logic
+        return {"compliant": True, "violations": []}
+```
+
+### 2. Lifecycle Hooks
+
+Intercept and augment at any stage:
+
+- `pre_execute` - Before AI call
+- `post_execute` - After successful execution
+- `on_error` - When errors occur
+- `on_block` - When request is blocked
+- `on_escalate` - When escalated for approval
+
+```python
+from policy.plugins import LifecycleHookPlugin
+
+class NotificationHook(LifecycleHookPlugin):
+    @property
+    def hook_stage(self) -> str:
+        return "on_escalate"
+    
+    def on_escalate(self, context):
+        # Send notification to reviewers
+        notify_reviewers(context)
+        return {"status": "continue"}
+```
+
+### 3. Policy Templates
+
+Common patterns ready to use:
+
+```python
+from policy.dsl import get_policy_template
+
+# Instant policy from template
+policy = get_policy_template(
+    "require_approval_for_model",
+    MODEL_NAME="gpt-4"
+)
+```
+
+**Templates included:**
+- `require_approval_for_model` - Model-specific approval
+- `block_pii` - PII detection and blocking
+- `high_risk_escalation` - Risk-based routing
+- `business_hours_only` - Time-based restrictions
+- `cost_threshold` - Budget controls
+
+### 4. Risk Scoring Framework
+
+Bring your own risk models:
+
+```python
+from policy.plugins import RiskScorerPlugin
+
+class MLRiskScorer(RiskScorerPlugin):
+    def calculate_risk_score(self, agent_id, prompt, context):
+        # Your ML model here
+        score = your_model.predict(prompt)
+        return {
+            "score": score,
+            "level": self._score_to_level(score),
+            "factors": ["ML model prediction"],
+            "recommendations": []
+        }
+```
 
 ---
 
@@ -189,33 +508,6 @@ Dashboard features:
 - Agent status monitoring
 - Audit log viewer
 - Kill switch controls
-
----
-
-## Project Structure
-
-```
-ai-control-plane/
-├── gateway/              # API gateway and routing
-├── registry/             # Agent/model registry
-├── policy/               # Policy engine
-│   └── compliance/       # Compliance policy modules (GDPR, HIPAA, etc.)
-├── observability/        # Logging and audit
-├── approval/             # Human-in-the-loop
-├── kill_switch/          # Emergency controls
-├── auth/                 # RBAC and identity management
-├── dashboard/            # Web-based observability UI
-├── sdk/                  # Client SDKs
-├── deployments/          # Kubernetes and Helm charts
-│   ├── kubernetes/       # Raw K8s manifests
-│   └── helm/             # Helm chart
-├── .github/workflows/    # CI/CD pipelines
-├── demo/                 # Example scripts
-├── tests/                # Test suite
-└── docs/                 # Documentation
-```
-
----
 
 ## Development
 
@@ -239,6 +531,25 @@ python -m gateway.main
 
 ---
 
+## What Makes This The "Salesforce of AI"
+
+### 1. Inevitable Adoption
+Once you need governance (and you will), this becomes mandatory infrastructure.
+
+### 2. Network Effects
+More plugins → More value → More adoption → More plugins
+
+### 3. Lock-In Through Trust
+- All your audit history lives here
+- All your compliance evidence lives here
+- All your policy logic lives here
+- **You can't switch because this IS your system of record**
+
+### 4. Boring = Reliable = Enterprise
+Not the sexiest product. That's exactly why it wins.
+
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -247,10 +558,63 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-Contributions are welcome! This is an open-source project focused on making AI governance accessible and practical.
+Contributions welcome. This is platform infrastructure for AI governance.
+
+**Particularly interested in:**
+- Additional compliance modules (regional standards)
+- Plugin implementations (risk scorers, hooks, sanitizers)
+- Policy templates for common use cases
+- Integration examples with major AI providers
+- Performance optimizations for scale
+
+---
+
+## Roadmap
+
+### V2: Production Scale
+- [ ] Persistent storage (PostgreSQL for audit, Redis for state)
+- [ ] Distributed tracing for policy evaluation
+- [ ] Advanced policy engine (rate limiting, quotas, time windows)
+- [ ] Real-time approval notifications (WebSockets)
+- [ ] Multi-tenancy with organization isolation
+
+### V3: Ecosystem
+- [ ] Plugin marketplace
+- [ ] Visual policy builder
+- [ ] Compliance certification workflows
+- [ ] Integration with major AI platforms
+- [ ] Advanced analytics and reporting
+
+### V4: Intelligence
+- [ ] ML-powered risk scoring
+- [ ] Anomaly detection in usage patterns
+- [ ] Policy recommendation engine
+- [ ] Automated compliance gap analysis
+
+---
+
+## The Reality Check
+
+**Right now, this repo feels like:**
+"A very smart engineer's blueprint for AI governance"
+
+**To become the Salesforce of AI, it needs to feel like:**
+"The unavoidable backbone every serious AI deployment runs through"
+
+**We're building the bones, not the skin.**
+
+The direction is correct. The distance is measurable. The north star is clear.
+
+**This is not a criticism. This is a roadmap.**
 
 ---
 
 ## Disclaimer
 
-This is a governance layer, not an AI model. It does not train, host, or provide AI models. It provides controls over how AI systems are accessed and used.
+This is a governance layer, not an AI model provider.
+
+- We don't train models
+- We don't host models  
+- We don't compete with OpenAI, Anthropic, Google, or Microsoft
+
+**We govern how AI is used. That's the entire business.**
