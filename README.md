@@ -424,10 +424,12 @@ ai-control-plane/
 - [RBAC Guide](docs/rbac-guide.md) - Access control setup
 - [Compliance Guide](docs/compliance-guide.md) - GDPR, HIPAA, SOC 2, PCI-DSS
 
-### Extensibility
-- Plugin Development - Creating custom policies (coming soon)
-- Risk Scoring Modules - Custom risk models (coming soon)
-- Lifecycle Hooks - Intercepting execution flow (coming soon)
+### Extensibility (Phase 4 - New! ✨)
+- **[Plugin Development Guide](docs/plugin-development.md)** - Creating custom plugins
+- **[CLI Guide](docs/cli-guide.md)** - Command-line interface
+- **[SDK Documentation](sdk/README.md)** - Python and TypeScript SDKs
+- **[Example Plugins](examples/plugins/)** - Risk engines, evaluators, hooks
+- **[Config Examples](examples/configs/)** - Terraform-style configuration
 
 ---
 
@@ -757,6 +759,20 @@ Contributions welcome. This is platform infrastructure for AI governance.
 ---
 
 ## Roadmap
+
+### ✅ V1: Production Ready (Complete)
+- [x] Core governance features
+- [x] Compliance modules (GDPR, HIPAA, SOC 2, PCI-DSS)
+- [x] RBAC system
+- [x] Observability dashboard
+- [x] Production deployment
+
+### ✅ Phase 4: Extensibility (Complete)
+- [x] **Policy Plugin Framework** - Drop-in evaluators, external risk engines
+- [x] **Lifecycle Hooks** - Pre-request, post-decision, incident triggers
+- [x] **SDK Expansion** - TypeScript/JavaScript SDK, CLI tool
+- [x] **Terraform Config** - Declarative infrastructure-as-code
+- [x] **Plugin Ecosystem** - Examples, documentation, testing
 
 ### V2: Production Scale
 - [ ] Persistent storage (PostgreSQL for audit, Redis for state)
