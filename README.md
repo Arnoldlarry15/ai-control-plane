@@ -774,6 +774,15 @@ Contributions welcome. This is platform infrastructure for AI governance.
 - [x] **Terraform Config** - Declarative infrastructure-as-code
 - [x] **Plugin Ecosystem** - Examples, documentation, testing
 
+### ✅ Phase 5: Monetization (Complete)
+- [x] **Multiple Pricing Axes** - Per request, per policy pack, per compliance module, per seat, audit tiers
+- [x] **Open Core Model** - Free community edition, paid enterprise features
+- [x] **Usage Metering** - Track usage across all pricing dimensions
+- [x] **License Management** - Enterprise license keys and feature gating
+- [x] **Pricing API** - Complete billing and cost calculation endpoints
+
+See [PHASE_5_MONETIZATION.md](PHASE_5_MONETIZATION.md) for the complete Salesforce playbook implementation.
+
 ### V2: Production Scale
 - [ ] Persistent storage (PostgreSQL for audit, Redis for state)
 - [ ] Distributed tracing for policy evaluation

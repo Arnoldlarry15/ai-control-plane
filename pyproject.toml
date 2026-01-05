@@ -93,6 +93,7 @@ packages = [
     "kill_switch",
     "auth",
     "dashboard",
+    "pricing",
     "sdk",
     "sdk.python",
     "cli",

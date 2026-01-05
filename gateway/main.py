@@ -52,6 +52,16 @@ register_error_handlers(app)
 # Include routes
 app.include_router(router, prefix="/api")
 
+# Include pricing routes (Phase 5: Monetization)
+try:
+    from pricing.routes import router as pricing_router
+    app.include_router(pricing_router, prefix="/api")
+    logger.info("Pricing routes mounted at /api/pricing")
+except ImportError as e:
+    logger.error(f"Pricing routes not mounted - import error: {e}")
+except Exception as e:
+    logger.error(f"Pricing routes not mounted - unexpected error: {e}")
+
 # Mount dashboard
 try:
     from dashboard.app import create_dashboard_app
