@@ -188,12 +188,24 @@ class ConfigLoader:
             else:
                 raise ValueError(f"Variable '{var_name}' has no value and no default")
         
-        # Substitute variables in config
-        config_str = json.dumps(config)
-        for var_name, var_value in resolved_vars.items():
-            config_str = config_str.replace(f"${{var.{var_name}}}", str(var_value))
+        # Substitute variables recursively
+        def substitute_in_value(value):
+            """Recursively substitute variables in a value."""
+            if isinstance(value, str):
+                # Replace variable references
+                for var_name, var_value in resolved_vars.items():
+                    placeholder = f"${{var.{var_name}}}"
+                    if placeholder in value:
+                        value = value.replace(placeholder, str(var_value))
+                return value
+            elif isinstance(value, dict):
+                return {k: substitute_in_value(v) for k, v in value.items()}
+            elif isinstance(value, list):
+                return [substitute_in_value(item) for item in value]
+            else:
+                return value
         
-        return json.loads(config_str)
+        return substitute_in_value(config)
 
 
 class ConfigApplier:

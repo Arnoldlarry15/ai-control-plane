@@ -156,8 +156,17 @@ class LifecycleHookPlugin(PolicyPlugin):
     @abstractmethod
     def hook_stage(self) -> str:
         """
-        Hook stage (pre_request, pre_execute, post_decision, post_execute, 
-        on_error, on_block, on_escalate, on_incident).
+        Hook stage identifier.
+        
+        Available stages:
+        - pre_request: Before request validation
+        - pre_execute: Before agent execution
+        - post_decision: After policy decision
+        - post_execute: After successful execution
+        - on_error: On execution error
+        - on_block: When request blocked
+        - on_escalate: When escalated for approval
+        - on_incident: When incident triggered
         """
         pass
     

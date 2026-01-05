@@ -16,6 +16,12 @@ class ContentBasedRiskEngine(RiskEnginePlugin):
     Analyzes prompts for risky patterns and keywords.
     """
     
+    # Risk keyword configuration - externalize in production
+    FINANCIAL_KEYWORDS = ['payment', 'transfer', 'credit card', 'bank account', 
+                         'bitcoin', 'crypto', 'wire transfer']
+    DANGEROUS_KEYWORDS = ['delete', 'drop', 'truncate', 'remove', 'destroy']
+    CODE_PATTERNS = ['<script>', 'eval(', 'exec(', 'system(', '`']
+    
     @property
     def plugin_id(self) -> str:
         return "content-risk-engine"
@@ -55,9 +61,7 @@ class ContentBasedRiskEngine(RiskEnginePlugin):
         prompt_lower = prompt.lower()
         
         # Check for financial keywords
-        financial_keywords = ['payment', 'transfer', 'credit card', 'bank account', 
-                             'bitcoin', 'crypto', 'wire transfer']
-        for keyword in financial_keywords:
+        for keyword in self.FINANCIAL_KEYWORDS:
             if keyword in prompt_lower:
                 risk_score += 15
                 risk_factors.append(f"Financial keyword detected: {keyword}")
@@ -74,15 +78,13 @@ class ContentBasedRiskEngine(RiskEnginePlugin):
             threat_indicators.append("PAYMENT_DATA")
         
         # Check for dangerous operations
-        dangerous_keywords = ['delete', 'drop', 'truncate', 'remove', 'destroy']
-        for keyword in dangerous_keywords:
+        for keyword in self.DANGEROUS_KEYWORDS:
             if keyword in prompt_lower:
                 risk_score += 20
                 risk_factors.append(f"Dangerous operation keyword: {keyword}")
         
         # Check for code injection patterns
-        code_patterns = ['<script>', 'eval(', 'exec(', 'system(', '`']
-        for pattern in code_patterns:
+        for pattern in self.CODE_PATTERNS:
             if pattern in prompt_lower:
                 risk_score += 25
                 risk_factors.append(f"Code injection pattern: {pattern}")

@@ -178,24 +178,36 @@ class IncidentResponseHook(LifecycleHookPlugin):
         }
     
     def _create_incident_ticket(self, context: Dict[str, Any]):
-        """Create incident ticket in ticketing system."""
+        """
+        Create incident ticket in ticketing system.
+        
+        TODO: Integrate with Jira, ServiceNow, or other ticketing system.
+        """
         logger.info(f"[INCIDENT] Creating ticket for {context.get('incident_type')}")
-        # Integration with Jira, ServiceNow, etc.
     
     def _alert_security_team(self, context: Dict[str, Any]):
-        """Alert security team via multiple channels."""
+        """
+        Alert security team via multiple channels.
+        
+        TODO: Integrate with Slack, PagerDuty, email, etc.
+        """
         logger.info("[INCIDENT] Alerting security team")
-        # Integration with Slack, PagerDuty, email
     
     def _lock_agent(self, agent_id: str):
-        """Lock agent to prevent further use."""
+        """
+        Lock agent to prevent further use.
+        
+        TODO: Activate kill switch for specific agent via API.
+        """
         logger.warning(f"[INCIDENT] Locking agent: {agent_id}")
-        # Activate kill switch for specific agent
     
     def _collect_forensics(self, context: Dict[str, Any]):
-        """Collect forensic data for investigation."""
+        """
+        Collect forensic data for investigation.
+        
+        TODO: Capture full context, logs, and system state.
+        """
         logger.info("[INCIDENT] Collecting forensic data")
-        # Capture full context, logs, system state
 
 
 class AuditComplianceHook(LifecycleHookPlugin):
