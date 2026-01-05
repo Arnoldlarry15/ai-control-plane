@@ -39,11 +39,15 @@ class KillSwitchActiveError(ControlPlaneError):
 class PolicyViolationError(ControlPlaneError):
     """Raised when policy blocks execution."""
     
-    def __init__(self, policy_id: str, reason: str):
+    def __init__(self, policy_id: str, reason: str, explanation: Dict[str, Any] = None):
         super().__init__(
             message=f"Policy violation: {reason}",
             status_code=status.HTTP_403_FORBIDDEN,
-            details={"error_type": "policy_violation", "policy_id": policy_id},
+            details={
+                "error_type": "policy_violation",
+                "policy_id": policy_id,
+                "explanation": explanation,
+            },
         )
 
 
