@@ -1,0 +1,175 @@
+# NIST AI RMF (Risk Management Framework) Compliance Policy
+# 
+# Based on NIST AI 100-1: AI Risk Management Framework
+# https://www.nist.gov/itl/ai-risk-management-framework
+#
+# Core Functions: GOVERN, MAP, MEASURE, MANAGE
+#
+# This policy implements key controls from the NIST AI RMF to ensure
+# responsible AI development and deployment.
+
+name: "NIST AI RMF Compliance"
+description: "NIST AI Risk Management Framework controls"
+version: "1.0.0"
+standard: "NIST-AI-RMF-1.0"
+
+# References to NIST AI RMF
+references:
+  - "NIST AI 100-1 (2023)"
+  - "AI RMF Core: GOVERN, MAP, MEASURE, MANAGE"
+  - "https://www.nist.gov/itl/ai-risk-management-framework"
+
+rules:
+  # GOVERN: Accountability and transparency
+  - id: "nist-ai-rmf-govern-1"
+    name: "Human Oversight for High-Risk AI"
+    description: "High-risk AI systems require human oversight and approval"
+    reference: "GOVERN-1.1: Accountability structures"
+    when:
+      and:
+        - field: "risk_level"
+          in: ["high", "critical"]
+        - field: "context.impact_level"
+          in: ["high", "critical"]
+    then: "escalate"
+    reason: "High-risk AI decision requires human review per NIST AI RMF GOVERN-1.1"
+    
+  # MAP: Context understanding
+  - id: "nist-ai-rmf-map-1"
+    name: "Document AI System Context"
+    description: "AI systems must document their intended use and context"
+    reference: "MAP-1.1: Context of use documentation"
+    when:
+      field: "context.documentation_complete"
+      equals: false
+    then: "block"
+    reason: "AI system context must be documented per NIST AI RMF MAP-1.1"
+  
+  # MAP: Categorize risks
+  - id: "nist-ai-rmf-map-2"
+    name: "AI System Risk Categorization"
+    description: "AI systems must be categorized by risk level"
+    reference: "MAP-2.1: Risk categorization"
+    when:
+      field: "risk_level"
+      equals: "unknown"
+    then: "block"
+    reason: "AI system risk level must be categorized per NIST AI RMF MAP-2.1"
+  
+  # MEASURE: Assess risks
+  - id: "nist-ai-rmf-measure-1"
+    name: "Bias and Fairness Testing"
+    description: "AI systems affecting protected groups require bias testing"
+    reference: "MEASURE-2.3: Fairness assessment"
+    when:
+      and:
+        - field: "context.affects_protected_groups"
+          equals: true
+        - field: "context.bias_tested"
+          equals: false
+    then: "block"
+    reason: "Bias testing required for AI affecting protected groups per NIST AI RMF MEASURE-2.3"
+  
+  - id: "nist-ai-rmf-measure-2"
+    name: "Performance Metrics Required"
+    description: "AI systems must have documented performance metrics"
+    reference: "MEASURE-2.1: Performance measurement"
+    when:
+      field: "context.performance_metrics_documented"
+      equals: false
+    then: "escalate"
+    reason: "AI system performance metrics required per NIST AI RMF MEASURE-2.1"
+  
+  # MANAGE: Risk response
+  - id: "nist-ai-rmf-manage-1"
+    name: "Incident Response Plan"
+    description: "High-risk AI systems must have incident response plans"
+    reference: "MANAGE-1.1: Risk response and recovery"
+    when:
+      and:
+        - field: "risk_level"
+          in: ["high", "critical"]
+        - field: "context.incident_response_plan"
+          equals: false
+    then: "block"
+    reason: "Incident response plan required for high-risk AI per NIST AI RMF MANAGE-1.1"
+  
+  - id: "nist-ai-rmf-manage-2"
+    name: "Continuous Monitoring"
+    description: "AI systems require continuous monitoring in production"
+    reference: "MANAGE-1.2: Monitoring and review"
+    when:
+      and:
+        - field: "context.environment"
+          equals: "production"
+        - field: "context.monitoring_enabled"
+          equals: false
+    then: "block"
+    reason: "Continuous monitoring required for production AI per NIST AI RMF MANAGE-1.2"
+  
+  # GOVERN: Transparency and explainability
+  - id: "nist-ai-rmf-govern-2"
+    name: "AI Decision Explainability"
+    description: "AI decisions affecting individuals must be explainable"
+    reference: "GOVERN-1.3: Transparency and explainability"
+    when:
+      and:
+        - field: "context.affects_individuals"
+          equals: true
+        - field: "context.explainability_enabled"
+          equals: false
+    then: "escalate"
+    reason: "AI decisions affecting individuals must be explainable per NIST AI RMF GOVERN-1.3"
+  
+  # Data quality and integrity
+  - id: "nist-ai-rmf-measure-3"
+    name: "Training Data Quality"
+    description: "AI systems must use quality-assured training data"
+    reference: "MEASURE-2.2: Data quality assessment"
+    when:
+      field: "context.training_data_quality_verified"
+      equals: false
+    then: "escalate"
+    reason: "Training data quality must be verified per NIST AI RMF MEASURE-2.2"
+  
+  # Third-party AI systems
+  - id: "nist-ai-rmf-manage-3"
+    name: "Third-Party AI Evaluation"
+    description: "Third-party AI systems require evaluation before use"
+    reference: "MANAGE-2.1: Third-party risk management"
+    when:
+      and:
+        - field: "context.third_party_ai"
+          equals: true
+        - field: "context.third_party_evaluated"
+          equals: false
+    then: "block"
+    reason: "Third-party AI systems must be evaluated per NIST AI RMF MANAGE-2.1"
+  
+  # Sensitive applications
+  - id: "nist-ai-rmf-govern-3"
+    name: "Sensitive Application Controls"
+    description: "AI in sensitive domains requires enhanced controls"
+    reference: "GOVERN-1.2: Risk-based governance"
+    when:
+      and:
+        - field: "context.application_domain"
+          in: ["healthcare", "finance", "legal", "employment", "law_enforcement"]
+        - field: "context.enhanced_controls"
+          equals: false
+    then: "block"
+    reason: "Sensitive AI applications require enhanced controls per NIST AI RMF GOVERN-1.2"
+
+# Metadata for compliance reporting
+metadata:
+  framework: "NIST AI RMF"
+  version: "1.0"
+  effective_date: "2023-01-26"
+  last_updated: "2024-01-05"
+  applicable_domains:
+    - "All AI systems"
+  risk_categories:
+    - "Governance"
+    - "Technical"
+    - "Operational"
+    - "Societal"

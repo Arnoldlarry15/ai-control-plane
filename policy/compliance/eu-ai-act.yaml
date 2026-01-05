@@ -1,0 +1,314 @@
+# EU AI Act Compliance Policy
+#
+# Based on the EU Artificial Intelligence Act (2024)
+# https://artificialintelligenceact.eu/
+#
+# Risk-based approach: Unacceptable Risk, High Risk, Limited Risk, Minimal Risk
+#
+# This policy implements the EU AI Act's risk classification and requirements.
+
+name: "EU AI Act Compliance"
+description: "European Union AI Act risk-based controls"
+version: "1.0.0"
+standard: "EU-AI-ACT-2024"
+
+# References to EU AI Act
+references:
+  - "EU Artificial Intelligence Act (2024)"
+  - "Regulation (EU) 2024/1689"
+  - "https://artificialintelligenceact.eu/"
+
+# Risk tier definitions
+risk_tiers:
+  unacceptable:
+    description: "Prohibited AI practices"
+    examples:
+      - "Social scoring by governments"
+      - "Real-time biometric identification in public spaces"
+      - "Subliminal manipulation"
+      - "Exploitation of vulnerabilities"
+  
+  high:
+    description: "High-risk AI systems requiring compliance"
+    examples:
+      - "Biometric identification and categorization"
+      - "Critical infrastructure management"
+      - "Education and vocational training"
+      - "Employment and worker management"
+      - "Essential services (credit scoring, benefits)"
+      - "Law enforcement"
+      - "Migration and border control"
+      - "Administration of justice"
+  
+  limited:
+    description: "Limited risk requiring transparency"
+    examples:
+      - "Chatbots and conversational AI"
+      - "Emotion recognition systems"
+      - "Deepfakes and synthetic content"
+  
+  minimal:
+    description: "Minimal risk with no specific requirements"
+    examples:
+      - "Spam filters"
+      - "AI-enabled video games"
+
+rules:
+  # UNACCEPTABLE RISK - Prohibited practices
+  - id: "eu-ai-act-prohibited-1"
+    name: "Block Social Scoring"
+    description: "Social scoring by public authorities is prohibited"
+    reference: "Article 5(1)(c) - Prohibited AI practices"
+    when:
+      or:
+        - field: "context.use_case"
+          contains: "social scoring"
+        - field: "context.use_case"
+          contains: "social credit"
+        - and:
+            - field: "context.application_type"
+              equals: "scoring"
+            - field: "context.scoring_subject"
+              equals: "individuals"
+    then: "block"
+    reason: "Social scoring is prohibited under EU AI Act Article 5(1)(c)"
+  
+  - id: "eu-ai-act-prohibited-2"
+    name: "Block Subliminal Manipulation"
+    description: "AI that manipulates human behavior through subliminal techniques is prohibited"
+    reference: "Article 5(1)(a) - Prohibited AI practices"
+    when:
+      or:
+        - field: "context.manipulation_risk"
+          equals: "subliminal"
+        - field: "context.behavior_modification"
+          equals: "coercive"
+    then: "block"
+    reason: "Subliminal manipulation is prohibited under EU AI Act Article 5(1)(a)"
+  
+  - id: "eu-ai-act-prohibited-3"
+    name: "Block Real-Time Biometric in Public"
+    description: "Real-time biometric identification in public spaces is prohibited (with exceptions)"
+    reference: "Article 5(1)(d) - Prohibited AI practices"
+    when:
+      and:
+        - field: "context.biometric_identification"
+          equals: true
+        - field: "context.real_time"
+          equals: true
+        - field: "context.public_space"
+          equals: true
+        - field: "context.law_enforcement_exception"
+          equals: false
+    then: "block"
+    reason: "Real-time biometric identification in public spaces prohibited under EU AI Act Article 5(1)(d)"
+  
+  # HIGH RISK - Stringent requirements
+  - id: "eu-ai-act-high-risk-1"
+    name: "High-Risk AI Registration Required"
+    description: "High-risk AI systems must be registered in EU database"
+    reference: "Article 6 & 71 - High-risk AI requirements"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.eu_database_registered"
+          equals: false
+    then: "block"
+    reason: "High-risk AI must be registered in EU database per Article 71"
+  
+  - id: "eu-ai-act-high-risk-2"
+    name: "Risk Management System Required"
+    description: "High-risk AI requires risk management system"
+    reference: "Article 9 - Risk management system"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.risk_management_system"
+          equals: false
+    then: "block"
+    reason: "High-risk AI requires risk management system per Article 9"
+  
+  - id: "eu-ai-act-high-risk-3"
+    name: "Data Governance for High-Risk AI"
+    description: "High-risk AI requires data governance measures"
+    reference: "Article 10 - Data and data governance"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.data_governance_implemented"
+          equals: false
+    then: "block"
+    reason: "High-risk AI requires data governance per Article 10"
+  
+  - id: "eu-ai-act-high-risk-4"
+    name: "Technical Documentation Required"
+    description: "High-risk AI must have technical documentation"
+    reference: "Article 11 & Annex IV - Technical documentation"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.technical_documentation_complete"
+          equals: false
+    then: "block"
+    reason: "High-risk AI requires technical documentation per Article 11"
+  
+  - id: "eu-ai-act-high-risk-5"
+    name: "Human Oversight for High-Risk AI"
+    description: "High-risk AI systems require human oversight"
+    reference: "Article 14 - Human oversight"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.human_oversight_enabled"
+          equals: false
+    then: "block"
+    reason: "High-risk AI requires human oversight per Article 14"
+  
+  - id: "eu-ai-act-high-risk-6"
+    name: "Accuracy and Robustness Requirements"
+    description: "High-risk AI must meet accuracy and robustness standards"
+    reference: "Article 15 - Accuracy, robustness and cybersecurity"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.accuracy_validated"
+          equals: false
+    then: "block"
+    reason: "High-risk AI must meet accuracy requirements per Article 15"
+  
+  - id: "eu-ai-act-high-risk-7"
+    name: "Conformity Assessment Required"
+    description: "High-risk AI requires conformity assessment"
+    reference: "Article 43 - Conformity assessment"
+    when:
+      and:
+        - field: "context.risk_tier"
+          equals: "high"
+        - field: "context.conformity_assessment_passed"
+          equals: false
+    then: "block"
+    reason: "High-risk AI requires conformity assessment per Article 43"
+  
+  # LIMITED RISK - Transparency obligations
+  - id: "eu-ai-act-limited-risk-1"
+    name: "Chatbot Disclosure Required"
+    description: "Users must be informed they are interacting with AI"
+    reference: "Article 52(1) - Transparency obligations for certain AI systems"
+    when:
+      and:
+        - field: "context.ai_type"
+          in: ["chatbot", "conversational_ai", "virtual_assistant"]
+        - field: "context.user_informed_of_ai"
+          equals: false
+    then: "escalate"
+    reason: "Users must be informed of AI interaction per Article 52(1)"
+  
+  - id: "eu-ai-act-limited-risk-2"
+    name: "Emotion Recognition Disclosure"
+    description: "Emotion recognition systems must inform users"
+    reference: "Article 52(1) - Transparency obligations"
+    when:
+      and:
+        - field: "context.emotion_recognition"
+          equals: true
+        - field: "context.user_informed"
+          equals: false
+    then: "block"
+    reason: "Emotion recognition must inform users per Article 52(1)"
+  
+  - id: "eu-ai-act-limited-risk-3"
+    name: "Deepfake Labeling Required"
+    description: "AI-generated content must be labeled as such"
+    reference: "Article 52(3) - Deep fakes and synthetic content"
+    when:
+      and:
+        - field: "context.content_type"
+          in: ["image", "video", "audio"]
+        - field: "context.ai_generated"
+          equals: true
+        - field: "context.labeled_as_synthetic"
+          equals: false
+    then: "block"
+    reason: "AI-generated content must be labeled per Article 52(3)"
+  
+  # Biometric categorization
+  - id: "eu-ai-act-biometric-1"
+    name: "Biometric Categorization Restrictions"
+    description: "Biometric categorization requires strict justification"
+    reference: "Article 5(1)(f) - Biometric categorization"
+    when:
+      and:
+        - field: "context.biometric_categorization"
+          equals: true
+        - field: "context.legally_justified"
+          equals: false
+    then: "block"
+    reason: "Biometric categorization requires legal justification per Article 5(1)(f)"
+  
+  # Sensitive domains
+  - id: "eu-ai-act-employment-1"
+    name: "Employment AI High-Risk Controls"
+    description: "AI in employment requires high-risk controls"
+    reference: "Annex III(4) - High-risk AI in employment"
+    when:
+      and:
+        - field: "context.domain"
+          equals: "employment"
+        - field: "context.use_case"
+          in: ["recruitment", "hiring", "promotion", "termination", "task_allocation", "monitoring"]
+        - field: "context.high_risk_controls"
+          equals: false
+    then: "block"
+    reason: "Employment AI requires high-risk controls per Annex III(4)"
+  
+  - id: "eu-ai-act-education-1"
+    name: "Education AI High-Risk Controls"
+    description: "AI in education requires high-risk controls"
+    reference: "Annex III(3) - High-risk AI in education"
+    when:
+      and:
+        - field: "context.domain"
+          equals: "education"
+        - field: "context.use_case"
+          in: ["admission", "assessment", "evaluation"]
+        - field: "context.high_risk_controls"
+          equals: false
+    then: "block"
+    reason: "Education AI requires high-risk controls per Annex III(3)"
+  
+  # Essential services
+  - id: "eu-ai-act-credit-scoring-1"
+    name: "Credit Scoring High-Risk Controls"
+    description: "AI credit scoring requires high-risk controls"
+    reference: "Annex III(5)(b) - High-risk AI in creditworthiness"
+    when:
+      and:
+        - field: "context.domain"
+          in: ["finance", "banking"]
+        - field: "context.use_case"
+          equals: "credit_scoring"
+        - field: "context.high_risk_controls"
+          equals: false
+    then: "block"
+    reason: "Credit scoring AI requires high-risk controls per Annex III(5)(b)"
+
+# Metadata for compliance reporting
+metadata:
+  framework: "EU AI Act"
+  regulation: "Regulation (EU) 2024/1689"
+  effective_date: "2024-08-01"
+  full_application_date: "2026-08-02"
+  last_updated: "2024-01-05"
+  applicable_regions:
+    - "European Union"
+    - "European Economic Area"
+  enforcement:
+    max_fines_tier1: "35M EUR or 7% global turnover"
+    max_fines_tier2: "15M EUR or 3% global turnover"
+    max_fines_tier3: "7.5M EUR or 1.5% global turnover"
