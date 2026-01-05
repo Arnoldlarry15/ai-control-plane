@@ -56,6 +56,7 @@ class Executor:
         plugin_registry=None,
         audit_trail=None,
         policy_explainer=None,
+        metering_service=None,
     ):
         # Use injected services or import and get singletons
         if kill_switch is None or registry is None or policy_evaluator is None or obs_logger is None:
@@ -107,6 +108,17 @@ class Executor:
             except Exception as e:
                 logger.warning(f"Could not initialize policy explainer: {e}")
                 self.policy_explainer = None
+        
+        # Initialize metering service (Phase 5: Monetization)
+        self.metering_service = metering_service
+        if self.metering_service is None:
+            try:
+                from pricing.metering import MeteringService
+                self.metering_service = MeteringService()
+                logger.info("Metering service initialized in executor (Phase 5: Monetization)")
+            except Exception as e:
+                logger.warning(f"Could not initialize metering service: {e}")
+                self.metering_service = None
         
         logger.info("Executor initialized. The choke point is ready.")
     
@@ -207,6 +219,87 @@ class Executor:
                 "decision": decision,
                 "explanation": f"Error generating explanation: {e}"
             }
+    
+    def _record_metering_event(
+        self,
+        execution_id: str,
+        agent_id: str,
+        agent: Dict[str, Any],
+        status: str,
+        policies_applied: List[str] = None,
+        compliance_modules: List[str] = None,
+    ):
+        """
+        Record metering events for billing (Phase 5: Monetization).
+        
+        Tracks usage across all pricing axes:
+        - Per request (every governed execution)
+        - Per policy pack (which packs were used)
+        - Per compliance module (which modules were checked)
+        
+        Args:
+            execution_id: Execution ID
+            agent_id: Agent ID
+            agent: Agent details
+            status: Execution status
+            policies_applied: List of policy IDs applied
+            compliance_modules: List of compliance modules checked
+        """
+        if not self.metering_service:
+            return
+        
+        try:
+            # Get organization ID from agent metadata
+            # In production, this would come from agent configuration
+            org_id = agent.get("metadata", {}).get("organization_id", "default-org")
+            
+            # Record the request (core pricing axis)
+            self.metering_service.record_request(
+                organization_id=org_id,
+                agent_id=agent_id,
+                execution_id=execution_id,
+            )
+            
+            # Record policy pack usage if known
+            if policies_applied:
+                for policy_id in policies_applied:
+                    # Map policy to policy pack
+                    # In production, maintain policy->pack mapping
+                    if "security" in policy_id.lower():
+                        pack_id = "security-pack"
+                    elif "compliance" in policy_id.lower():
+                        pack_id = "compliance-pack"
+                    elif "cost" in policy_id.lower():
+                        pack_id = "cost-control-pack"
+                    else:
+                        pack_id = "basic-pack"
+                    
+                    try:
+                        self.metering_service.record_policy_pack_usage(
+                            organization_id=org_id,
+                            policy_pack_id=pack_id,
+                            execution_id=execution_id,
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to record policy pack usage: {e}")
+            
+            # Record compliance module usage if known
+            if compliance_modules:
+                for module in compliance_modules:
+                    try:
+                        self.metering_service.record_compliance_validation(
+                            organization_id=org_id,
+                            compliance_module=module,
+                            execution_id=execution_id,
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to record compliance module usage: {e}")
+            
+            logger.debug(f"[{execution_id}] Metering events recorded for {org_id}")
+            
+        except Exception as e:
+            # Never fail execution due to metering issues
+            logger.error(f"[{execution_id}] Failed to record metering: {e}")
     
     async def execute(
         self,
@@ -361,6 +454,16 @@ class Executor:
                 execution_id=execution_id,
                 agent_id=agent_id,
                 user=user,
+            )
+            
+            # Record metering events (Phase 5: Monetization)
+            self._record_metering_event(
+                execution_id=execution_id,
+                agent_id=agent_id,
+                agent=agent,
+                status="success",
+                policies_applied=agent.get("policies", []),
+                compliance_modules=agent.get("compliance_requirements", []),
             )
             
             logger.info(f"[{execution_id}] Execution successful: latency={latency_ms}ms")
@@ -596,6 +699,18 @@ class Executor:
             execution_id=execution_id,
             agent_id=agent_id,
             user=user,
+        )
+        
+        # Record metering events (Phase 5: Monetization)
+        # Escalated requests still count - governance was applied
+        agent = self.registry.get_agent(agent_id) if self.registry else {}
+        self._record_metering_event(
+            execution_id=execution_id,
+            agent_id=agent_id,
+            agent=agent,
+            status="escalated",
+            policies_applied=agent.get("policies", []),
+            compliance_modules=agent.get("compliance_requirements", []),
         )
         
         # TODO: Queue for approval (V1: just return pending status)
