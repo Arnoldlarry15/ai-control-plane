@@ -164,7 +164,7 @@ rules:
 metadata:
   framework: "NIST AI RMF"
   version: "1.0"
-  effective_date: "2023-01-26"
+  effective_date: "2023-01-26"  # NIST AI RMF 1.0 released January 26, 2023
   last_updated: "2024-01-05"
   applicable_domains:
     - "All AI systems"

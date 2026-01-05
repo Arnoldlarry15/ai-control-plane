@@ -952,6 +952,20 @@ async def validate_compliance(request: ComplianceValidationRequest):
     
     Checks input text for compliance violations across specified standards.
     Returns violations found and compliance status.
+    
+    Note:
+        V1 Implementation: Basic structure and policy loading.
+        
+        Current behavior: Loads policies but does not perform actual validation
+        against input text. This is a placeholder implementation.
+        
+        V2 Enhancement: Implement actual policy evaluation:
+        1. Parse input text for sensitive patterns
+        2. Evaluate against policy rules
+        3. Detect violations and classify severity
+        4. Generate actionable recommendations
+        
+        For now, this endpoint confirms policy availability and structure.
     """
     try:
         from policy.compliance import ComplianceLoader
@@ -967,12 +981,13 @@ async def validate_compliance(request: ComplianceValidationRequest):
             try:
                 policy = loader.load_policy(standard)
                 
-                # Evaluate against policy
-                # In V1, simplified check
+                # V1: Simplified check - confirms policy loads successfully
+                # TODO V2: Implement actual policy evaluation against input_text
                 results[standard] = {
-                    "compliant": True,
+                    "compliant": True,  # V1: Placeholder - always returns true
                     "violations": [],
                     "rules_checked": len(policy.rules),
+                    "note": "V1: Policy structure validated. Full evaluation coming in V2."
                 }
             except Exception as e:
                 logger.warning(f"Failed to check {standard}: {e}")
@@ -988,6 +1003,7 @@ async def validate_compliance(request: ComplianceValidationRequest):
             "overall_compliant": all(
                 r.get("compliant", False) for r in results.values()
             ),
+            "note": "V1 implementation: Policy loading validated. Full text analysis coming in V2."
         }
     except Exception as e:
         logger.error(f"Compliance validation failed: {e}")

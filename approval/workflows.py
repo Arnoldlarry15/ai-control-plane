@@ -5,10 +5,13 @@ Defines approval workflows, timeout rules, and escalation paths for
 human-in-the-loop AI governance.
 """
 
+import logging
 from enum import Enum
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 
 class EscalationLevel(str, Enum):
@@ -153,8 +156,18 @@ class ApprovalWorkflow(BaseModel):
             # Check risk level
             if rule.risk_level_threshold and risk_level:
                 risk_levels = ["low", "medium", "high", "critical"]
-                if risk_levels.index(risk_level) >= risk_levels.index(rule.risk_level_threshold):
-                    return rule
+                try:
+                    risk_index = risk_levels.index(risk_level)
+                    threshold_index = risk_levels.index(rule.risk_level_threshold)
+                    if risk_index >= threshold_index:
+                        return rule
+                except ValueError:
+                    # Unknown risk level - log and skip this rule
+                    logger.warning(
+                        f"Unknown risk level '{risk_level}' or threshold "
+                        f"'{rule.risk_level_threshold}' in escalation rule"
+                    )
+                    continue
         
         return None
 

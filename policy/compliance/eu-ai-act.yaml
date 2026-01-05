@@ -302,13 +302,16 @@ rules:
 metadata:
   framework: "EU AI Act"
   regulation: "Regulation (EU) 2024/1689"
-  effective_date: "2024-08-01"
-  full_application_date: "2026-08-02"
+  # Entry into force: August 1, 2024 (regulation became law)
+  # Full application: August 2, 2026 (24-month transition period)
+  # High-risk systems must comply by August 2, 2027 (36 months)
+  effective_date: "2024-08-01"  # Regulation entered into force
+  full_application_date: "2026-08-02"  # When all provisions apply
   last_updated: "2024-01-05"
   applicable_regions:
     - "European Union"
     - "European Economic Area"
   enforcement:
-    max_fines_tier1: "35M EUR or 7% global turnover"
-    max_fines_tier2: "15M EUR or 3% global turnover"
-    max_fines_tier3: "7.5M EUR or 1.5% global turnover"
+    max_fines_tier1: "35M EUR or 7% global turnover"  # Prohibited practices
+    max_fines_tier2: "15M EUR or 3% global turnover"  # Obligations violations
+    max_fines_tier3: "7.5M EUR or 1.5% global turnover"  # Incorrect information

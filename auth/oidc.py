@@ -5,7 +5,7 @@ Supports Auth0 and other OIDC-compliant identity providers for enterprise SSO.
 """
 
 import logging
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 from datetime import datetime, timedelta
 import json
 import base64
@@ -22,7 +22,7 @@ class OIDCConfig(BaseModel):
     client_id: str = Field(..., description="Application client ID")
     client_secret: Optional[str] = Field(None, description="Client secret for confidential clients")
     redirect_uri: str = Field(..., description="Redirect URI after authentication")
-    scopes: list[str] = Field(
+    scopes: List[str] = Field(
         default=["openid", "profile", "email"],
         description="OAuth scopes to request"
     )
@@ -72,9 +72,9 @@ class OIDCUserInfo(BaseModel):
     picture: Optional[str] = None
     
     # Additional claims
-    roles: list[str] = Field(default_factory=list)
-    groups: list[str] = Field(default_factory=list)
-    permissions: list[str] = Field(default_factory=list)
+    roles: List[str] = Field(default_factory=list)
+    groups: List[str] = Field(default_factory=list)
+    permissions: List[str] = Field(default_factory=list)
     
     # Custom namespace for Auth0 (e.g., https://app.example.com/roles)
     custom_claims: Dict[str, Any] = Field(default_factory=dict)
@@ -146,12 +146,41 @@ class OIDCProvider:
             User information if valid, None otherwise
             
         Note:
-            V1: Basic validation and parsing
-            V2+: Full JWT validation with JWKS, signature verification, expiry checks
+            V1 Implementation: Basic token parsing for demo purposes.
+            
+            ⚠️ SECURITY WARNING: This implementation does NOT perform signature
+            verification, expiration checking, or audience validation.
+            
+            For production use, implement proper JWT validation:
+            1. Use python-jose or PyJWT library
+            2. Fetch and cache JWKS from provider's jwks_uri
+            3. Verify signature using public key from JWKS
+            4. Validate issuer, audience, and expiration claims
+            5. Check token revocation status
+            
+            Example production implementation:
+            ```python
+            from jose import jwt, JWTError
+            
+            try:
+                # Fetch JWKS and verify signature
+                jwks = requests.get(self.config.jwks_uri).json()
+                token_data = jwt.decode(
+                    token,
+                    jwks,
+                    algorithms=['RS256'],
+                    audience=self.config.client_id,
+                    issuer=self.config.issuer
+                )
+                # Extract user info from verified token
+                return OIDCUserInfo(**token_data)
+            except JWTError:
+                return None
+            ```
         """
         try:
             # V1: Simple base64 decode for demo purposes
-            # In production, use proper JWT validation with python-jose
+            # ⚠️ DO NOT USE IN PRODUCTION - No signature verification!
             parts = token.split(".")
             if len(parts) != 3:
                 logger.warning("Invalid JWT format")
