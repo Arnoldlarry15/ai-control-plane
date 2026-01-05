@@ -125,8 +125,8 @@ class DashboardApp:
         
         try:
             if self.obs_logger:
-                # Get logs from the observability service
-                logs = self.obs_logger.query_logs(limit=1000)
+                # Get logs from the observability service (limit for performance)
+                logs = self.obs_logger.query_logs(limit=100)
                 if logs:
                     stats["total_executions"] = len(logs)
                     

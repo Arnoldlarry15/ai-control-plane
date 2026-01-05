@@ -461,7 +461,7 @@ async def get_policy_template(template_id: str):
 class ComplianceValidateRequest(BaseModel):
     """Request to validate input against compliance standards."""
     input_text: str = Field(..., description="Text to validate")
-    standards: Optional[list[str]] = Field(None, description="Compliance standards to check (gdpr, hipaa, soc2, pci-dss)")
+    standards: Optional[List[str]] = Field(None, description="Compliance standards to check (gdpr, hipaa, soc2, pci-dss)")
     context: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Additional context")
 
 

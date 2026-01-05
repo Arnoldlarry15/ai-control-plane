@@ -65,8 +65,8 @@ class ComplianceValidator:
                     "policies": [policy.id],
                 }
                 
-                # Register policy with evaluator temporarily
-                self.evaluator._policies[policy.id] = policy
+                # Register policy with evaluator using public method
+                self.evaluator.register_policy(policy)
                 
                 # Evaluate
                 evaluation = self.evaluator.evaluate(

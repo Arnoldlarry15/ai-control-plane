@@ -64,8 +64,10 @@ try:
     )
     app.mount("/dashboard", dashboard_app)
     logger.info("Dashboard mounted at /dashboard")
+except ImportError as e:
+    logger.error(f"Dashboard not mounted - import error: {e}")
 except Exception as e:
-    logger.warning(f"Dashboard not mounted: {e}")
+    logger.error(f"Dashboard not mounted - unexpected error: {e}")
 
 
 @app.get("/")
