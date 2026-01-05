@@ -28,8 +28,8 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title="AI Control Plane Gateway",
-    description="Centralized execution gateway for AI governance",
-    version="0.1.0",
+    description="Production-Grade AI Governance Platform - The Operating System for Enterprise AI",
+    version="1.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
@@ -52,22 +52,44 @@ register_error_handlers(app)
 # Include routes
 app.include_router(router, prefix="/api")
 
+# Mount dashboard
+try:
+    from dashboard.app import create_dashboard_app
+    from gateway.services import get_registry, get_observability_logger, get_kill_switch
+    
+    dashboard_app = create_dashboard_app(
+        registry_service=get_registry(),
+        obs_logger=get_observability_logger(),
+        kill_switch_service=get_kill_switch(),
+    )
+    app.mount("/dashboard", dashboard_app)
+    logger.info("Dashboard mounted at /dashboard")
+except ImportError as e:
+    logger.error(f"Dashboard not mounted - import error: {e}")
+except Exception as e:
+    logger.error(f"Dashboard not mounted - unexpected error: {e}")
+
 
 @app.get("/")
 async def root():
     """Root endpoint."""
     return {
         "service": "ai-control-plane-gateway",
-        "version": "0.1.0",
+        "version": "1.0.0",
         "status": "operational",
-        "docs": "/api/docs",
+        "description": "Production-Grade AI Governance Platform",
+        "endpoints": {
+            "api_docs": "/api/docs",
+            "dashboard": "/dashboard",
+            "health": "/health",
+        },
     }
 
 
 @app.get("/health")
 async def health():
     """Health check endpoint."""
-    return {"status": "healthy", "service": "gateway"}
+    return {"status": "healthy", "service": "gateway", "version": "1.0.0"}
 
 
 def main(host: str = "0.0.0.0", port: int = 8000, reload: bool = False):

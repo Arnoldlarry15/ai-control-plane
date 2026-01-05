@@ -234,3 +234,15 @@ class ObservabilityLogger:
             "events": events,
             "count": len(events),
         }
+    
+    def get_recent_logs(self, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Get recent logs for dashboard display.
+        
+        Args:
+            limit: Maximum number of logs to return
+            
+        Returns:
+            List of recent log events
+        """
+        return self.storage.query(limit=limit)

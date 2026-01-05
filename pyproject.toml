@@ -4,24 +4,30 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-control-plane"
-version = "0.1.0"
-description = "An open, API-first platform for registering, governing, and observing AI systems"
+version = "1.0.0"
+description = "Production-grade AI Governance Platform - The Operating System for Enterprise AI"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
 authors = [
     {name = "AI Control Plane Contributors"}
 ]
-keywords = ["ai", "governance", "policy", "audit", "control-plane"]
+keywords = ["ai", "governance", "policy", "audit", "control-plane", "compliance", "rbac", "enterprise"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+    "Topic :: Security",
 ]
 
 dependencies = [
@@ -73,3 +79,22 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --cov=. --cov-report=html --cov-report=term"
+
+[tool.setuptools]
+packages = [
+    "gateway",
+    "registry", 
+    "policy",
+    "policy.compliance",
+    "observability",
+    "approval",
+    "kill_switch",
+    "auth",
+    "dashboard",
+    "sdk",
+    "sdk.python",
+]
+
+[tool.setuptools.package-data]
+"policy.compliance" = ["*.yaml"]
+"dashboard" = ["templates/*.html"]

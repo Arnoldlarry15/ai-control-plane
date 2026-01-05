@@ -452,3 +452,135 @@ async def get_policy_template(template_id: str):
     except Exception as e:
         logger.error(f"Template retrieval failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Compliance API Routes
+# ============================================================================
+
+class ComplianceValidateRequest(BaseModel):
+    """Request to validate input against compliance standards."""
+    input_text: str = Field(..., description="Text to validate")
+    standards: Optional[List[str]] = Field(None, description="Compliance standards to check (gdpr, hipaa, soc2, pci-dss)")
+    context: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Additional context")
+
+
+@router.get("/compliance/standards")
+async def list_compliance_standards():
+    """
+    List available compliance standards.
+    
+    Returns all supported compliance standards with descriptions.
+    """
+    try:
+        from policy.compliance.validator import get_compliance_validator
+        
+        validator = get_compliance_validator()
+        standards = validator.get_compliance_standards()
+        
+        return {
+            "standards": [
+                {"id": std_id, "name": std_id.upper(), "description": desc}
+                for std_id, desc in standards.items()
+            ],
+            "total": len(standards),
+        }
+    except Exception as e:
+        logger.error(f"Failed to list compliance standards: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/compliance/standards/{standard}")
+async def get_compliance_standard(standard: str):
+    """
+    Get detailed information about a compliance standard.
+    
+    Returns policy rules, references, and implementation details.
+    """
+    try:
+        from policy.compliance.validator import get_compliance_validator
+        
+        validator = get_compliance_validator()
+        details = validator.get_standard_details(standard)
+        
+        return {"standard": standard.upper(), "details": details}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to get compliance standard: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/compliance/validate")
+async def validate_compliance(request: ComplianceValidateRequest):
+    """
+    Validate input text against compliance policies.
+    
+    Checks input against specified compliance standards and returns
+    compliance status, violations, and warnings.
+    """
+    try:
+        from policy.compliance.validator import get_compliance_validator
+        
+        validator = get_compliance_validator()
+        result = validator.validate_input(
+            input_text=request.input_text,
+            standards=request.standards or [],
+            context=request.context,
+        )
+        
+        return result
+    except Exception as e:
+        logger.error(f"Compliance validation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/compliance/report/{agent_id}")
+async def generate_compliance_report(
+    agent_id: str,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    standards: Optional[str] = None,
+):
+    """
+    Generate compliance report for an agent.
+    
+    Creates a compliance report for the specified agent over a time range.
+    
+    Query parameters:
+    - start_date: ISO 8601 date (default: 30 days ago)
+    - end_date: ISO 8601 date (default: now)
+    - standards: Comma-separated list of standards (default: all)
+    """
+    try:
+        from datetime import datetime, timedelta
+        from policy.compliance.validator import get_compliance_validator
+        
+        # Parse dates
+        if end_date:
+            time_end = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+        else:
+            time_end = datetime.utcnow()
+        
+        if start_date:
+            time_start = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+        else:
+            time_start = time_end - timedelta(days=30)
+        
+        # Parse standards
+        standards_list = None
+        if standards:
+            standards_list = [s.strip() for s in standards.split(',')]
+        
+        validator = get_compliance_validator()
+        report = validator.generate_compliance_report(
+            agent_id=agent_id,
+            time_range_start=time_start,
+            time_range_end=time_end,
+            standards=standards_list,
+        )
+        
+        return report
+    except Exception as e:
+        logger.error(f"Compliance report generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

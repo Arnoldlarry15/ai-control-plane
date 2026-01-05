@@ -1,0 +1,14 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+include pyproject.toml
+
+recursive-include policy/compliance *.yaml
+recursive-include dashboard/templates *.html
+recursive-include docs *.md
+recursive-include deployments *.yaml *.yml
+
+prune tests
+prune demo
+prune scripts
