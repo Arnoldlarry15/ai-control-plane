@@ -623,7 +623,7 @@ class MLRiskScorer(RiskScorerPlugin):
 
 ## Observability Dashboard
 
-✅ **Production-Ready in v1.0.0** - Access the web-based dashboard with real-time metrics:
+✅ **Phase 3 Complete** - Executive-grade dashboard with advanced analytics:
 
 ```bash
 # Start the gateway (includes dashboard)
@@ -633,35 +633,67 @@ python -m gateway.main
 open http://localhost:8000/dashboard
 ```
 
-### Dashboard Features (Fully Integrated)
+### Dashboard Features (Phase 3 - "Salesforce Moment")
 
-- ✅ **Real-time Metrics**: Live statistics connected to actual system data
-  - Total executions count
-  - Policy violations tracking
-  - Active agents monitoring
-  - Success rate calculation
-  - Average response time
-  - Kill switch status
-- ✅ **Activity Feed**: Auto-refreshing event stream from audit logs
-- ✅ **Agent Status**: Live agent information from registry
-- ✅ **Compliance Status**: Overview of all compliance standards
-- ✅ **Modern UI**: Dark-themed, responsive design
-- ✅ **Auto-refresh**: Updates every 5 seconds
+**🎯 Executive Overview - Understand AI Risk in 60 Seconds**
+- ✅ **6 Key Metrics**: Total executions, violations, agents, success rate, latency, kill switch
+- ✅ **High-Risk Activity Alerts**: Critical/High/Medium risk events prominently displayed
+- ✅ **Policy Hits Breakdown**: Blocked vs Allowed with percentages
+- ✅ **Live AI Traffic**: Requests/min, latency (avg & P95), active users/agents
+
+**🎯 Decision Replay (Killer Feature)**
+- ✅ **Click Any Event**: Full decision context in modal view
+- ✅ **Complete Timeline**: See inputs, policies evaluated, outcome
+- ✅ **Policy Chain**: Every policy decision with reasoning
+- ✅ **Audit Trail**: Immutable, timestamped execution history
+
+**🎯 Organization-Wide AI Map**
+- ✅ **Team Usage Analytics**: Which teams use which models
+- ✅ **Risk Heatmap**: Low/Medium/High/Critical distribution
+- ✅ **Usage Trends**: 7-day historical patterns with charts
+- ✅ **Top Teams Ranking**: Sorted by usage with risk indicators
+
+**Technical Features**
+- ✅ **Real-time Updates**: Auto-refresh every 5 seconds
+- ✅ **Interactive Elements**: Click events for detailed investigation
+- ✅ **Modern UI**: Dark-themed, responsive, executive-focused
+- ✅ **REST APIs**: All analytics available via API endpoints
 
 ### Dashboard API Endpoints
 
+**Phase 3 Analytics APIs**
+
 ```bash
-# Get system statistics
+# Live traffic metrics
+curl http://localhost:8000/dashboard/api/analytics/live_traffic
+
+# Policy hits (blocked vs allowed)
+curl http://localhost:8000/dashboard/api/analytics/policy_hits
+
+# High-risk activity alerts
+curl http://localhost:8000/dashboard/api/analytics/high_risk_alerts
+
+# Decision replay (killer feature)
+curl http://localhost:8000/dashboard/api/analytics/decision/{execution_id}
+
+# Organization-wide AI map
+curl http://localhost:8000/dashboard/api/analytics/org_map
+
+# Usage trends (7 days)
+curl http://localhost:8000/dashboard/api/analytics/usage_trends
+
+# Basic endpoints
 curl http://localhost:8000/dashboard/api/stats
-
-# Get recent events
 curl http://localhost:8000/dashboard/api/recent_events
-
-# Get registered agents
 curl http://localhost:8000/dashboard/api/agents
-
-# Get compliance status
 curl http://localhost:8000/dashboard/api/compliance/status
+```
+
+**Demo Data (Development)**
+
+```bash
+# Populate sample data for testing
+curl -X POST http://localhost:8000/dashboard/api/demo/populate_data
 ```
 
 ## Development

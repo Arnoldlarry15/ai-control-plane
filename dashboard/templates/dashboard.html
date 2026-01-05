@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Control Plane - Dashboard</title>
+    <title>AI Control Plane - Executive Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -173,39 +173,252 @@
         .pulse {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+        
+        /* Phase 3 Enhancements */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .alert-item {
+            padding: 12px 16px;
+            border-left: 4px solid;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            background: #1e293b;
+        }
+        
+        .alert-critical {
+            border-color: #dc2626;
+            background: rgba(220, 38, 38, 0.1);
+        }
+        
+        .alert-high {
+            border-color: #ea580c;
+            background: rgba(234, 88, 12, 0.1);
+        }
+        
+        .alert-medium {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+        
+        .alert-details {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .risk-low {
+            background: #166534;
+            color: #86efac;
+        }
+        
+        .risk-medium {
+            background: #854d0e;
+            color: #fde047;
+        }
+        
+        .risk-high {
+            background: #9a3412;
+            color: #fdba74;
+        }
+        
+        .risk-critical {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+        
+        .chart-container {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 150px;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .bar {
+            flex: 1;
+            background: #3b82f6;
+            border-radius: 4px 4px 0 0;
+            min-height: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .bar:hover {
+            background: #60a5fa;
+        }
+        
+        .bar-label {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+        }
+        
+        .stat-value {
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+        
+        .clickable {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .clickable:hover {
+            background: #0f172a;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            padding: 40px;
+        }
+        
+        .modal-content {
+            background: #1e293b;
+            border-radius: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #334155;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: #f1f5f9;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .modal-close:hover {
+            color: #f1f5f9;
+        }
+        
+        .timeline-item {
+            padding: 16px;
+            border-left: 3px solid #3b82f6;
+            margin-left: 20px;
+            margin-bottom: 16px;
+            background: #0f172a;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .timeline-time {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-desc {
+            color: #e2e8f0;
+        }
+        
+        .code-block {
+            background: #0f172a;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🛡️ AI Control Plane</h1>
-            <p class="subtitle">Real-time Governance & Observability Dashboard</p>
+            <p class="subtitle">Executive Dashboard - Phase 3: Understand AI Risk in 60 Seconds</p>
         </header>
         
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-label">Total Executions</div>
-                <div class="metric-value">{{ stats.total_executions }}</div>
+                <div class="metric-value" id="total-executions">{{ stats.total_executions }}</div>
             </div>
             
             <div class="metric-card">
                 <div class="metric-label">Policy Violations</div>
-                <div class="metric-value" style="color: #f87171;">{{ stats.policy_violations }}</div>
+                <div class="metric-value" style="color: #f87171;" id="policy-violations">{{ stats.policy_violations }}</div>
             </div>
             
             <div class="metric-card">
                 <div class="metric-label">Active Agents</div>
-                <div class="metric-value" style="color: #34d399;">{{ stats.active_agents }}</div>
+                <div class="metric-value" style="color: #34d399;" id="active-agents">{{ stats.active_agents }}</div>
             </div>
             
             <div class="metric-card">
                 <div class="metric-label">Success Rate</div>
-                <div class="metric-value">{{ stats.success_rate }}<span class="metric-unit">%</span></div>
+                <div class="metric-value" id="success-rate">{{ stats.success_rate }}<span class="metric-unit">%</span></div>
             </div>
             
             <div class="metric-card">
                 <div class="metric-label">Avg Response Time</div>
-                <div class="metric-value">{{ stats.avg_response_time_ms }}<span class="metric-unit">ms</span></div>
+                <div class="metric-value" id="avg-response">{{ stats.avg_response_time_ms }}<span class="metric-unit">ms</span></div>
             </div>
             
             <div class="metric-card">
@@ -220,8 +433,127 @@
             </div>
         </div>
         
+        <!-- Phase 3: High-Risk Alerts Section -->
+        <div class="events-section" style="margin-bottom: 40px;">
+            <h2 class="section-title">🚨 High-Risk Activity Alerts</h2>
+            <div id="high-risk-alerts">
+                <div class="alert-item alert-medium">
+                    <div class="alert-title">Loading alerts...</div>
+                    <div class="alert-details">Please wait</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Phase 3: Live Traffic & Policy Hits -->
+        <div class="grid-2col">
+            <div class="events-section">
+                <h2 class="section-title">📊 Policy Hits (Blocked vs Allowed)</h2>
+                <div class="chart-container">
+                    <div class="stat-row">
+                        <span class="stat-label">Total Requests</span>
+                        <span class="stat-value" id="policy-total">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Allowed</span>
+                        <span class="stat-value" style="color: #22c55e;" id="policy-allowed">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Blocked</span>
+                        <span class="stat-value" style="color: #ef4444;" id="policy-blocked">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Escalated</span>
+                        <span class="stat-value" style="color: #f59e0b;" id="policy-escalated">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Allow Rate</span>
+                        <span class="stat-value" id="policy-allow-rate">0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="events-section">
+                <h2 class="section-title">⚡ Live AI Traffic</h2>
+                <div class="chart-container">
+                    <div class="stat-row">
+                        <span class="stat-label">Requests/Min</span>
+                        <span class="stat-value" id="traffic-rpm">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Avg Latency</span>
+                        <span class="stat-value" id="traffic-latency">0ms</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">P95 Latency</span>
+                        <span class="stat-value" id="traffic-p95">0ms</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Active Users</span>
+                        <span class="stat-value" id="traffic-users">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Active Agents</span>
+                        <span class="stat-value" id="traffic-agents">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Phase 3: Org-Wide AI Map -->
+        <div class="events-section" style="margin-bottom: 40px;">
+            <h2 class="section-title">🗺️ Organization-Wide AI Map</h2>
+            
+            <div class="grid-2col">
+                <div>
+                    <h3 style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 16px;">Risk Heatmap</h3>
+                    <div id="risk-heatmap">
+                        <div class="stat-row">
+                            <span class="stat-label">Low Risk</span>
+                            <span class="stat-value"><span class="risk-badge risk-low" id="risk-low-count">0</span></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Medium Risk</span>
+                            <span class="stat-value"><span class="risk-badge risk-medium" id="risk-medium-count">0</span></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">High Risk</span>
+                            <span class="stat-value"><span class="risk-badge risk-high" id="risk-high-count">0</span></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Critical Risk</span>
+                            <span class="stat-value"><span class="risk-badge risk-critical" id="risk-critical-count">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 16px;">Top Teams by Usage</h3>
+                    <div id="top-teams">
+                        <div class="stat-row">
+                            <span class="stat-label">Loading...</span>
+                            <span class="stat-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="color: #94a3b8; font-size: 1.1rem; margin: 24px 0 16px 0;">Usage Trends (Last 7 Days)</h3>
+            <div class="chart-container">
+                <div class="bar-chart" id="usage-trends-chart">
+                    <div class="bar" style="height: 50%;"></div>
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="bar" style="height: 70%;"></div>
+                    <div class="bar" style="height: 55%;"></div>
+                    <div class="bar" style="height: 80%;"></div>
+                    <div class="bar" style="height: 65%;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity with Decision Replay -->
         <div class="events-section">
-            <h2 class="section-title">Recent Activity</h2>
+            <h2 class="section-title">📋 Recent Activity (Click for Decision Replay)</h2>
             <ul class="event-list" id="event-list">
                 <li class="event-item">
                     <div class="event-info">
@@ -231,42 +563,310 @@
                 </li>
             </ul>
             
-            <div class="chart-placeholder">
-                📊 Policy Violations Over Time (Chart will be rendered here)
-            </div>
-            
             <div class="refresh-indicator pulse">
                 ⟳ Auto-refreshing every 5 seconds
             </div>
         </div>
     </div>
     
+    <!-- Decision Replay Modal -->
+    <div id="decision-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🎯 Decision Replay</h2>
+                <button class="modal-close" onclick="closeDecisionModal()">×</button>
+            </div>
+            <div id="decision-details">
+                <p style="color: #94a3b8;">Loading decision details...</p>
+            </div>
+        </div>
+    </div>
+    
     <script>
+        // Phase 3 Dashboard JavaScript - Enhanced Analytics
+        
         // Auto-refresh functionality
         async function refreshData() {
             try {
-                // Fetch recent events (use relative path to work with dashboard mount)
-                const response = await fetch('./api/recent_events');
-                const events = await response.json();
+                // Fetch all data in parallel
+                const [events, stats, policyHits, liveTraffic, highRiskAlerts, orgMap, usageTrends] = await Promise.all([
+                    fetch('./api/recent_events').then(r => r.json()),
+                    fetch('./api/stats').then(r => r.json()),
+                    fetch('./api/analytics/policy_hits').then(r => r.json()).catch(() => null),
+                    fetch('./api/analytics/live_traffic').then(r => r.json()).catch(() => null),
+                    fetch('./api/analytics/high_risk_alerts').then(r => r.json()).catch(() => null),
+                    fetch('./api/analytics/org_map').then(r => r.json()).catch(() => null),
+                    fetch('./api/analytics/usage_trends').then(r => r.json()).catch(() => null),
+                ]);
                 
-                // Update event list
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = events.map(event => `
-                    <li class="event-item">
-                        <div class="event-info">
-                            <div class="event-type">${event.event_type.replace('_', ' ').toUpperCase()}</div>
-                            <div class="event-details">
-                                Agent: ${event.agent_id} | User: ${event.user} | 
-                                ${new Date(event.timestamp).toLocaleString()}
-                            </div>
-                        </div>
-                        <div class="event-status status-${event.status}">
-                            ${event.status.toUpperCase()}
-                        </div>
-                    </li>
-                `).join('');
+                // Update basic stats
+                updateBasicStats(stats);
+                
+                // Update event list with click handlers for decision replay
+                updateEventList(events);
+                
+                // Update Phase 3 components
+                if (policyHits) updatePolicyHits(policyHits);
+                if (liveTraffic) updateLiveTraffic(liveTraffic);
+                if (highRiskAlerts) updateHighRiskAlerts(highRiskAlerts);
+                if (orgMap) updateOrgMap(orgMap);
+                if (usageTrends) updateUsageTrends(usageTrends);
+                
             } catch (error) {
                 console.error('Error refreshing data:', error);
+            }
+        }
+        
+        function updateBasicStats(stats) {
+            document.getElementById('total-executions').textContent = stats.total_executions || 0;
+            document.getElementById('policy-violations').textContent = stats.policy_violations || 0;
+            document.getElementById('active-agents').textContent = stats.active_agents || 0;
+            document.getElementById('success-rate').innerHTML = `${stats.success_rate || 0}<span class="metric-unit">%</span>`;
+            document.getElementById('avg-response').innerHTML = `${stats.avg_response_time_ms || 0}<span class="metric-unit">ms</span>`;
+        }
+        
+        function updateEventList(events) {
+            const eventList = document.getElementById('event-list');
+            
+            if (!events || events.length === 0) {
+                eventList.innerHTML = `
+                    <li class="event-item">
+                        <div class="event-info">
+                            <div class="event-type">No events yet</div>
+                            <div class="event-details">Start using the control plane to see activity</div>
+                        </div>
+                    </li>
+                `;
+                return;
+            }
+            
+            eventList.innerHTML = events.map(event => `
+                <li class="event-item clickable" onclick="showDecisionReplay('${event.execution_id || 'unknown'}')">
+                    <div class="event-info">
+                        <div class="event-type">${(event.event_type || 'unknown').replace('_', ' ').toUpperCase()}</div>
+                        <div class="event-details">
+                            Agent: ${event.agent_id || 'unknown'} | User: ${event.user || 'system'} | 
+                            ${new Date(event.timestamp).toLocaleString()}
+                        </div>
+                    </div>
+                    <div class="event-status status-${event.status || 'unknown'}">
+                        ${(event.status || 'unknown').toUpperCase()}
+                    </div>
+                </li>
+            `).join('');
+        }
+        
+        function updatePolicyHits(data) {
+            document.getElementById('policy-total').textContent = data.total || 0;
+            document.getElementById('policy-allowed').textContent = data.allowed || 0;
+            document.getElementById('policy-blocked').textContent = data.blocked || 0;
+            document.getElementById('policy-escalated').textContent = data.escalated || 0;
+            document.getElementById('policy-allow-rate').textContent = `${data.allow_rate || 0}%`;
+        }
+        
+        function updateLiveTraffic(data) {
+            document.getElementById('traffic-rpm').textContent = data.requests_per_minute || 0;
+            document.getElementById('traffic-latency').textContent = `${data.avg_latency_ms || 0}ms`;
+            document.getElementById('traffic-p95').textContent = `${data.p95_latency_ms || 0}ms`;
+            document.getElementById('traffic-users').textContent = data.active_users || 0;
+            document.getElementById('traffic-agents').textContent = data.active_agents || 0;
+        }
+        
+        function updateHighRiskAlerts(data) {
+            const alertsContainer = document.getElementById('high-risk-alerts');
+            const alerts = data.alerts || [];
+            
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = `
+                    <div class="alert-item alert-medium">
+                        <div class="alert-title">✅ No high-risk alerts</div>
+                        <div class="alert-details">All systems operating normally</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            alertsContainer.innerHTML = alerts.slice(0, 5).map(alert => `
+                <div class="alert-item alert-${alert.risk_level} clickable" onclick="showDecisionReplay('${alert.execution_id || 'unknown'}')">
+                    <div class="alert-title">
+                        <span class="risk-badge risk-${alert.risk_level}">${alert.risk_level.toUpperCase()}</span>
+                        ${alert.alert_reason}
+                    </div>
+                    <div class="alert-details">
+                        ${alert.user || 'system'} | ${alert.agent_id || 'unknown'} | 
+                        ${new Date(alert.timestamp).toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateOrgMap(data) {
+            // Update risk heatmap
+            const heatmap = data.risk_heatmap || {};
+            document.getElementById('risk-low-count').textContent = heatmap.low || 0;
+            document.getElementById('risk-medium-count').textContent = heatmap.medium || 0;
+            document.getElementById('risk-high-count').textContent = heatmap.high || 0;
+            document.getElementById('risk-critical-count').textContent = heatmap.critical || 0;
+            
+            // Update top teams
+            const teams = data.teams || [];
+            const topTeamsContainer = document.getElementById('top-teams');
+            
+            if (teams.length === 0) {
+                topTeamsContainer.innerHTML = `
+                    <div class="stat-row">
+                        <span class="stat-label">No data yet</span>
+                        <span class="stat-value">-</span>
+                    </div>
+                `;
+                return;
+            }
+            
+            topTeamsContainer.innerHTML = teams.slice(0, 5).map(team => `
+                <div class="stat-row">
+                    <span class="stat-label">
+                        ${team.user} 
+                        <span class="risk-badge risk-${team.risk_level}">${team.risk_level}</span>
+                    </span>
+                    <span class="stat-value">${team.total_requests} reqs</span>
+                </div>
+            `).join('');
+        }
+        
+        function updateUsageTrends(data) {
+            const chartContainer = document.getElementById('usage-trends-chart');
+            const requests = data.daily_requests || [];
+            
+            if (requests.length === 0) return;
+            
+            const maxValue = Math.max(...requests, 1);
+            
+            chartContainer.innerHTML = requests.map((value, index) => {
+                const height = (value / maxValue) * 100;
+                return `
+                    <div style="flex: 1;">
+                        <div class="bar" style="height: ${height}%;"></div>
+                        <div class="bar-label">${data.labels ? data.labels[index] : `D${index+1}`}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Decision Replay Modal (KILLER FEATURE)
+        async function showDecisionReplay(executionId) {
+            if (!executionId || executionId === 'unknown') {
+                alert('No execution ID available for this event');
+                return;
+            }
+            
+            const modal = document.getElementById('decision-modal');
+            const detailsContainer = document.getElementById('decision-details');
+            
+            // Show modal
+            modal.style.display = 'block';
+            detailsContainer.innerHTML = '<p style="color: #94a3b8;">Loading decision details...</p>';
+            
+            try {
+                const response = await fetch(`./api/analytics/decision/${executionId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Decision not found');
+                }
+                
+                const decision = await response.json();
+                
+                // Render decision details
+                detailsContainer.innerHTML = `
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #60a5fa; margin-bottom: 8px;">Execution ID</h3>
+                        <div class="code-block">${decision.execution_id}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #60a5fa; margin-bottom: 8px;">📥 Input</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">User</span>
+                            <span class="stat-value">${decision.input.user || 'unknown'}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Agent</span>
+                            <span class="stat-value">${decision.input.agent_id || 'unknown'}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Prompt</span>
+                            <span class="stat-value" style="font-size: 0.9rem; word-break: break-word;">
+                                ${decision.input.prompt || 'N/A'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #60a5fa; margin-bottom: 8px;">🔍 Policies Evaluated</h3>
+                        ${decision.policies_evaluated.length > 0 ? 
+                            decision.policies_evaluated.map(p => `
+                                <div class="timeline-item">
+                                    <div class="timeline-time">${new Date(p.timestamp).toLocaleString()}</div>
+                                    <div class="timeline-desc">
+                                        <strong>${p.policy_id}</strong>: ${p.action}
+                                        ${p.reason ? `<br><span style="color: #94a3b8;">${p.reason}</span>` : ''}
+                                    </div>
+                                </div>
+                            `).join('') :
+                            '<p style="color: #94a3b8;">No policies evaluated</p>'
+                        }
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #60a5fa; margin-bottom: 8px;">✅ Outcome</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Status</span>
+                            <span class="stat-value">
+                                <span class="event-status status-${decision.outcome.status}">
+                                    ${(decision.outcome.status || 'unknown').toUpperCase()}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Latency</span>
+                            <span class="stat-value">${decision.outcome.latency_ms || 0}ms</span>
+                        </div>
+                        ${decision.outcome.policy_decision ? `
+                            <div class="stat-row">
+                                <span class="stat-label">Decision Reason</span>
+                                <span class="stat-value" style="font-size: 0.9rem;">
+                                    ${decision.outcome.policy_decision.reason || 'N/A'}
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div>
+                        <h3 style="color: #60a5fa; margin-bottom: 8px;">⏱️ Timeline</h3>
+                        ${decision.timeline.map(t => `
+                            <div class="timeline-item">
+                                <div class="timeline-time">${new Date(t.timestamp).toLocaleString()}</div>
+                                <div class="timeline-desc">${t.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                detailsContainer.innerHTML = `
+                    <p style="color: #ef4444;">Error loading decision details: ${error.message}</p>
+                    <p style="color: #94a3b8;">This execution may not have complete data available.</p>
+                `;
+            }
+        }
+        
+        function closeDecisionModal() {
+            document.getElementById('decision-modal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('decision-modal');
+            if (event.target === modal) {
+                closeDecisionModal();
             }
         }
         
