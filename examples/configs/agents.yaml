@@ -1,0 +1,98 @@
+# AI Control Plane Configuration
+# Terraform-style declarative configuration for AI governance
+
+# Variables
+variable "environment" {
+  description = "Deployment environment"
+  type        = string
+  default     = "production"
+}
+
+variable "default_risk_level" {
+  description = "Default risk level for agents"
+  type        = string
+  default     = "medium"
+}
+
+# Agent Resources
+resource "agent" "customer_support" {
+  name        = "customer-support-bot"
+  model       = "gpt-3.5-turbo"
+  risk_level  = "low"
+  environment = "${var.environment}"
+  
+  policies = [
+    "no-pii",
+    "business-hours-only"
+  ]
+  
+  metadata = {
+    team        = "customer-success"
+    cost_center = "CS-001"
+    owner       = "support-team@company.com"
+  }
+}
+
+resource "agent" "data_analyst" {
+  name        = "data-analysis-agent"
+  model       = "gpt-4"
+  risk_level  = "high"
+  environment = "${var.environment}"
+  
+  policies = [
+    "require-approval",
+    "no-pii",
+    "data-retention"
+  ]
+  
+  metadata = {
+    team        = "analytics"
+    cost_center = "AN-002"
+    owner       = "analytics-team@company.com"
+  }
+}
+
+resource "agent" "code_reviewer" {
+  name        = "code-review-assistant"
+  model       = "claude-3-opus"
+  risk_level  = "${var.default_risk_level}"
+  environment = "${var.environment}"
+  
+  policies = [
+    "no-secrets",
+    "code-quality-check"
+  ]
+  
+  metadata = {
+    team        = "engineering"
+    cost_center = "ENG-003"
+    owner       = "dev-team@company.com"
+  }
+}
+
+# Policy Resources (future feature)
+resource "policy" "business_hours" {
+  name        = "business-hours-only"
+  description = "Restrict AI usage to business hours"
+  
+  rules = [{
+    condition = "time.hour >= 9 && time.hour <= 17"
+    action    = "allow"
+    reason    = "Within business hours"
+  }, {
+    condition = "default"
+    action    = "block"
+    reason    = "Outside business hours"
+  }]
+}
+
+resource "policy" "cost_control" {
+  name        = "high-cost-approval"
+  description = "Require approval for expensive operations"
+  
+  rules = [{
+    condition = "estimated_cost > 100"
+    action    = "escalate"
+    reason    = "Cost exceeds $100 threshold"
+  }]
+}

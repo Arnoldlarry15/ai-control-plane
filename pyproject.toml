@@ -95,8 +95,12 @@ packages = [
     "dashboard",
     "sdk",
     "sdk.python",
+    "cli",
 ]
 
 [tool.setuptools.package-data]
 "policy.compliance" = ["*.yaml"]
 "dashboard" = ["templates/*.html"]
+
+[project.scripts]
+acp = "cli.acp:main"

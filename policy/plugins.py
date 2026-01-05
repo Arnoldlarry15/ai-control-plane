@@ -18,6 +18,7 @@ class PluginType(Enum):
     """Types of plugins supported."""
     POLICY_EVALUATOR = "policy_evaluator"
     RISK_SCORER = "risk_scorer"
+    RISK_ENGINE = "risk_engine"
     COMPLIANCE_MODULE = "compliance_module"
     LIFECYCLE_HOOK = "lifecycle_hook"
     DATA_SANITIZER = "data_sanitizer"
@@ -137,11 +138,14 @@ class LifecycleHookPlugin(PolicyPlugin):
     Plugin for agent lifecycle hooks.
     
     Hooks:
+    - pre_request: Before request validation (earliest intervention point)
     - pre_execute: Before agent execution
+    - post_decision: After policy decision is made
     - post_execute: After successful execution
     - on_error: On execution error
     - on_block: When request is blocked
     - on_escalate: When request is escalated
+    - on_incident: When incident is triggered (security/compliance)
     """
     
     @property
@@ -152,7 +156,17 @@ class LifecycleHookPlugin(PolicyPlugin):
     @abstractmethod
     def hook_stage(self) -> str:
         """
-        Hook stage (pre_execute, post_execute, on_error, on_block, on_escalate).
+        Hook stage identifier.
+        
+        Available stages:
+        - pre_request: Before request validation
+        - pre_execute: Before agent execution
+        - post_decision: After policy decision
+        - post_execute: After successful execution
+        - on_error: On execution error
+        - on_block: When request blocked
+        - on_escalate: When escalated for approval
+        - on_incident: When incident triggered
         """
         pass
     
@@ -160,8 +174,12 @@ class LifecycleHookPlugin(PolicyPlugin):
         """Execute lifecycle hook."""
         stage = self.hook_stage
         
-        if stage == "pre_execute":
+        if stage == "pre_request":
+            return self.on_pre_request(context)
+        elif stage == "pre_execute":
             return self.on_pre_execute(context)
+        elif stage == "post_decision":
+            return self.on_post_decision(context)
         elif stage == "post_execute":
             return self.on_post_execute(context)
         elif stage == "on_error":
@@ -170,12 +188,40 @@ class LifecycleHookPlugin(PolicyPlugin):
             return self.on_block(context)
         elif stage == "on_escalate":
             return self.on_escalate(context)
+        elif stage == "on_incident":
+            return self.on_incident(context)
         else:
             logger.warning(f"Unknown hook stage: {stage}")
             return {"status": "skipped"}
     
+    def on_pre_request(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Called before request validation.
+        
+        First interception point in the pipeline.
+        Use for: request enrichment, early filtering, logging.
+        
+        Returns:
+            - status: "continue" (proceed) or "abort" (stop execution)
+            - context: Updated context (optional)
+        """
+        return {"status": "continue"}
+    
     def on_pre_execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Called before execution."""
+        return {"status": "continue"}
+    
+    def on_post_decision(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Called after policy decision is made.
+        
+        Use for: logging decisions, triggering workflows, notifications.
+        
+        Context includes:
+            - decision: Policy decision (allow/block/escalate)
+            - reason: Decision reason
+            - policies_evaluated: List of policies checked
+        """
         return {"status": "continue"}
     
     def on_post_execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -192,6 +238,21 @@ class LifecycleHookPlugin(PolicyPlugin):
     
     def on_escalate(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Called when request is escalated."""
+        return {"status": "continue"}
+    
+    def on_incident(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Called when a security or compliance incident is triggered.
+        
+        Use for: alerting, incident response, forensics collection.
+        
+        Context includes:
+            - incident_type: Type of incident (security/compliance/policy)
+            - severity: Incident severity (low/medium/high/critical)
+            - details: Incident details
+            - agent_id: Affected agent
+            - user: Affected user
+        """
         return {"status": "continue"}
 
 
@@ -267,6 +328,107 @@ class DataSanitizerPlugin(PolicyPlugin):
         data = context.get("data", "")
         sanitized = self.sanitize(data, context)
         return {"sanitized_data": sanitized}
+
+
+class PolicyEvaluatorPlugin(PolicyPlugin):
+    """
+    Plugin for custom policy evaluation logic.
+    
+    Drop-in evaluators that can replace or augment the default policy engine.
+    
+    Example use cases:
+    - Custom business logic
+    - Integration with external policy systems
+    - Industry-specific evaluation rules
+    """
+    
+    @property
+    def plugin_type(self) -> PluginType:
+        return PluginType.POLICY_EVALUATOR
+    
+    @abstractmethod
+    def evaluate_policy(
+        self,
+        agent: Dict[str, Any],
+        prompt: str,
+        context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Evaluate custom policy.
+        
+        Args:
+            agent: Agent configuration
+            prompt: User prompt
+            context: Execution context
+            
+        Returns:
+            Dictionary with:
+                - action: str (allow, block, escalate)
+                - reason: str
+                - score: Optional[float]
+                - metadata: Optional[Dict]
+        """
+        pass
+    
+    def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute policy evaluation."""
+        return self.evaluate_policy(
+            agent=context.get("agent", {}),
+            prompt=context.get("prompt", ""),
+            context=context
+        )
+
+
+class RiskEnginePlugin(PolicyPlugin):
+    """
+    Plugin for external risk engines.
+    
+    Integrates external risk assessment systems and ML models.
+    
+    Example use cases:
+    - Third-party risk APIs
+    - ML-based risk models
+    - Multi-factor risk scoring
+    - Real-time threat intelligence
+    """
+    
+    @property
+    def plugin_type(self) -> PluginType:
+        return PluginType.RISK_ENGINE
+    
+    @abstractmethod
+    def assess_risk(
+        self,
+        agent_id: str,
+        prompt: str,
+        context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Assess risk using external engine.
+        
+        Args:
+            agent_id: Agent identifier
+            prompt: User prompt
+            context: Execution context
+            
+        Returns:
+            Dictionary with:
+                - risk_score: float (0-100)
+                - risk_level: str (low, medium, high, critical)
+                - risk_factors: List[str]
+                - threat_indicators: Optional[List[str]]
+                - recommendations: List[str]
+                - external_ref: Optional[str] (reference to external system)
+        """
+        pass
+    
+    def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute risk assessment."""
+        return self.assess_risk(
+            agent_id=context.get("agent_id", ""),
+            prompt=context.get("prompt", ""),
+            context=context
+        )
 
 
 class PluginRegistry:
