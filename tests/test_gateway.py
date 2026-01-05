@@ -54,7 +54,7 @@ async def test_successful_execution(fresh_executor):
         agent_id="test-agent",
         prompt="Hello, world!",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["status"] == "success"

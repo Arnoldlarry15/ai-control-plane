@@ -26,13 +26,13 @@ def main():
     print("\n🚨 Executing request with PII...")
     print("   Agent: customer-support-bot")
     print("   Prompt: 'My SSN is 123-45-6789 and I need help'")
-    print("   User: bob@example.com")
+    print("   User: bob@company.test")
     
     try:
         response = client.execute(
             agent_id="customer-support-bot",
             prompt="My SSN is 123-45-6789 and I need help",
-            user="bob@example.com",
+            user="bob@company.test",
             context={"source": "web-chat"},
         )
         

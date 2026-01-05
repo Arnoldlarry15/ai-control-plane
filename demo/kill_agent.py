@@ -28,7 +28,7 @@ def main():
         response = client.execute(
             agent_id="customer-support-bot",
             prompt="Hello, world!",
-            user="test@example.com",
+            user="test@company.test",
         )
         print(f"   ✅ Execution successful (ID: {response['execution_id']})")
     except Exception as e:
@@ -50,7 +50,7 @@ def main():
         response = client.execute(
             agent_id="customer-support-bot",
             prompt="Hello, world!",
-            user="test@example.com",
+            user="test@company.test",
         )
         print(f"   ⚠️  Execution succeeded (unexpected!)")
     except ExecutionBlockedError as e:
@@ -68,7 +68,7 @@ def main():
         response = client.execute(
             agent_id="customer-support-bot",
             prompt="Hello, world!",
-            user="test@example.com",
+            user="test@company.test",
         )
         print(f"   ✅ Execution successful (ID: {response['execution_id']})")
     except Exception as e:

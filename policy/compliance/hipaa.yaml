@@ -1,0 +1,101 @@
+# HIPAA Compliance Policy
+# Health Insurance Portability and Accountability Act (US)
+#
+# This policy enforces HIPAA requirements for AI systems:
+# - Protected Health Information (PHI) detection
+# - Minimum necessary standard
+# - Authorization requirements
+# - Security safeguards
+
+policy:
+  id: "hipaa-compliance"
+  version: "1.0"
+  name: "HIPAA Compliance Policy"
+  description: "Enforces HIPAA requirements for AI systems processing healthcare data"
+  compliance_standard: "HIPAA"
+  
+  rules:
+    # PHI Detection - Patient identifiers (HIPAA Privacy Rule)
+    - condition:
+        input_matches_pattern: "\\b\\d{3}-\\d{2}-\\d{4}\\b"
+      action: block
+      reason: "HIPAA PHI - Social Security Number detected"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"
+    
+    - condition:
+        input_matches_pattern: "MRN[:\\s]?\\d+"
+      action: block
+      reason: "HIPAA PHI - Medical Record Number detected"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"
+    
+    - condition:
+        input_contains_any:
+          - "patient name"
+          - "patient id"
+          - "health plan"
+          - "medical record"
+          - "diagnosis code"
+          - "prescription"
+          - "lab result"
+      action: escalate
+      reason: "HIPAA PHI - Potential protected health information requires review"
+      compliance_reference: "45 CFR 160.103"
+    
+    # Dates related to health (HIPAA Privacy Rule)
+    - condition:
+        input_contains_any:
+          - "date of birth"
+          - "admission date"
+          - "discharge date"
+          - "date of death"
+          - "treatment date"
+      action: escalate
+      reason: "HIPAA PHI - Health-related date information requires review"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"
+    
+    # Minimum Necessary Standard
+    - condition:
+        input_contains: "entire medical history"
+      action: block
+      reason: "HIPAA Minimum Necessary - Request for excessive PHI"
+      compliance_reference: "45 CFR 164.502(b)"
+    
+    # Geographic identifiers smaller than state
+    - condition:
+        input_matches_pattern: "\\b\\d{5}(?:-\\d{4})?\\b"
+      action: escalate
+      reason: "HIPAA PHI - ZIP code detected (potential geographic identifier)"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)(B)"
+    
+    # Telephone/Fax numbers
+    - condition:
+        input_matches_pattern: "\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b"
+      action: escalate
+      reason: "HIPAA PHI - Phone/Fax number detected"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"
+    
+    # Email addresses
+    - condition:
+        input_matches_pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+      action: escalate
+      reason: "HIPAA PHI - Email address detected"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"
+    
+    # IP addresses
+    - condition:
+        input_matches_pattern: "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b"
+      action: escalate
+      reason: "HIPAA PHI - IP address detected"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"
+    
+    # Account/Certificate numbers
+    - condition:
+        input_contains_any:
+          - "account number"
+          - "certificate number"
+          - "license number"
+          - "vehicle identifier"
+          - "device identifier"
+      action: escalate
+      reason: "HIPAA PHI - Identifier detected"
+      compliance_reference: "45 CFR 164.514(b)(2)(i)"

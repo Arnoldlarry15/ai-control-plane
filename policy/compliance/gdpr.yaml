@@ -1,0 +1,78 @@
+# GDPR Compliance Policy
+# General Data Protection Regulation (EU)
+#
+# This policy enforces GDPR requirements for AI systems:
+# - Right to be forgotten (data deletion)
+# - Consent management
+# - Data minimization
+# - Purpose limitation
+# - Automated decision-making transparency
+
+policy:
+  id: "gdpr-compliance"
+  version: "1.0"
+  name: "GDPR Compliance Policy"
+  description: "Enforces GDPR requirements for AI systems processing EU citizen data"
+  compliance_standard: "GDPR"
+  
+  rules:
+    # Article 17: Right to erasure (right to be forgotten)
+    - condition:
+        input_contains_any:
+          - "delete my data"
+          - "forget me"
+          - "remove my information"
+          - "erase my data"
+      action: escalate
+      reason: "GDPR Art. 17 - Right to erasure request requires human review"
+      compliance_reference: "GDPR Article 17"
+    
+    # Article 22: Automated decision-making
+    - condition:
+        input_contains_any:
+          - "credit decision"
+          - "loan approval"
+          - "employment decision"
+          - "legal decision"
+          - "health diagnosis"
+      action: escalate
+      reason: "GDPR Art. 22 - Automated decisions with legal/significant effects require human review"
+      compliance_reference: "GDPR Article 22"
+    
+    # Sensitive personal data (Article 9)
+    - condition:
+        input_matches_pattern: "(racial|ethnic) (origin|background)"
+      action: block
+      reason: "GDPR Art. 9 - Special category data (racial/ethnic origin) detected"
+      compliance_reference: "GDPR Article 9"
+    
+    - condition:
+        input_contains_any:
+          - "religious belief"
+          - "political opinion"
+          - "trade union"
+          - "genetic data"
+          - "biometric data"
+          - "health data"
+          - "sex life"
+          - "sexual orientation"
+      action: escalate
+      reason: "GDPR Art. 9 - Special category data requires explicit consent verification"
+      compliance_reference: "GDPR Article 9"
+    
+    # Data minimization (Article 5)
+    - condition:
+        input_length_exceeds: 5000
+      action: escalate
+      reason: "GDPR Art. 5 - Data minimization - excessive data input requires review"
+      compliance_reference: "GDPR Article 5(1)(c)"
+    
+    # Cross-border data transfer
+    - condition:
+        input_contains_any:
+          - "transfer to"
+          - "send to country"
+          - "export data"
+      action: escalate
+      reason: "GDPR Ch. V - Cross-border data transfer requires adequacy review"
+      compliance_reference: "GDPR Chapter V"

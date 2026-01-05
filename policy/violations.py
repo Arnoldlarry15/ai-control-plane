@@ -3,7 +3,7 @@ Policy Violations: Tracking and reporting policy violations.
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 logger = logging.getLogger(__name__)

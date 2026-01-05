@@ -1,0 +1,108 @@
+# PCI-DSS Compliance Policy
+# Payment Card Industry Data Security Standard
+#
+# This policy enforces PCI-DSS requirements for AI systems:
+# - Cardholder data protection
+# - Sensitive authentication data
+# - Access control
+# - Network security
+
+policy:
+  id: "pci-dss-compliance"
+  version: "1.0"
+  name: "PCI-DSS Compliance Policy"
+  description: "Enforces PCI-DSS requirements for AI systems processing payment card data"
+  compliance_standard: "PCI-DSS"
+  
+  rules:
+    # Requirement 3.2 - Do not store sensitive authentication data after authorization
+    - condition:
+        input_matches_pattern: "CVV[:\\s]?\\d{3,4}"
+      action: block
+      reason: "PCI-DSS 3.2 - CVV/CVC code detected - prohibited after authorization"
+      compliance_reference: "PCI-DSS Requirement 3.2"
+    
+    - condition:
+        input_contains_any:
+          - "card verification"
+          - "cvv"
+          - "cvc"
+          - "cid"
+          - "security code"
+      action: block
+      reason: "PCI-DSS 3.2 - Sensitive authentication data reference detected"
+      compliance_reference: "PCI-DSS Requirement 3.2"
+    
+    # Requirement 3.3 - Mask PAN when displayed
+    - condition:
+        input_matches_pattern: "\\b(?:\\d[ -]*?){13,19}\\b"
+      action: block
+      reason: "PCI-DSS 3.3 - Primary Account Number (PAN) detected"
+      compliance_reference: "PCI-DSS Requirement 3.3"
+    
+    # Common card number patterns
+    - condition:
+        input_matches_pattern: "\\b4\\d{3}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b"
+      action: block
+      reason: "PCI-DSS 3.3 - Visa card number pattern detected"
+      compliance_reference: "PCI-DSS Requirement 3.3"
+    
+    - condition:
+        input_matches_pattern: "\\b5[1-5]\\d{2}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b"
+      action: block
+      reason: "PCI-DSS 3.3 - Mastercard number pattern detected"
+      compliance_reference: "PCI-DSS Requirement 3.3"
+    
+    - condition:
+        input_matches_pattern: "\\b3[47]\\d{2}[ -]?\\d{6}[ -]?\\d{5}\\b"
+      action: block
+      reason: "PCI-DSS 3.3 - American Express number pattern detected"
+      compliance_reference: "PCI-DSS Requirement 3.3"
+    
+    # Requirement 3.4 - Render PAN unreadable
+    - condition:
+        input_contains_any:
+          - "full card number"
+          - "complete pan"
+          - "unmasked card"
+      action: block
+      reason: "PCI-DSS 3.4 - Request for unmasked PAN"
+      compliance_reference: "PCI-DSS Requirement 3.4"
+    
+    # Requirement 7 - Restrict access to cardholder data
+    - condition:
+        input_contains_any:
+          - "all card data"
+          - "export transactions"
+          - "download payment data"
+      action: escalate
+      reason: "PCI-DSS Req 7 - Bulk cardholder data access requires authorization"
+      compliance_reference: "PCI-DSS Requirement 7"
+    
+    # Requirement 10 - Track and monitor access to network resources
+    - condition:
+        input_contains_any:
+          - "cardholder data access"
+          - "view card numbers"
+          - "payment information"
+      action: escalate
+      reason: "PCI-DSS Req 10 - Cardholder data access must be logged and approved"
+      compliance_reference: "PCI-DSS Requirement 10"
+    
+    # Expiration dates (full date could be sensitive)
+    - condition:
+        input_matches_pattern: "\\b(0[1-9]|1[0-2])/\\d{2,4}\\b"
+      action: escalate
+      reason: "PCI-DSS - Possible card expiration date detected"
+      compliance_reference: "PCI-DSS Requirement 3.3"
+    
+    # Track 1/Track 2 magnetic stripe data
+    - condition:
+        input_contains_any:
+          - "track 1"
+          - "track 2"
+          - "track data"
+          - "magnetic stripe"
+      action: block
+      reason: "PCI-DSS 3.2 - Full track data prohibited after authorization"
+      compliance_reference: "PCI-DSS Requirement 3.2"

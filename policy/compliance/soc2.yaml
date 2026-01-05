@@ -1,0 +1,96 @@
+# SOC 2 Compliance Policy
+# Service Organization Control 2 (Trust Services Criteria)
+#
+# This policy enforces SOC 2 requirements for AI systems:
+# - Security (Common Criteria)
+# - Availability
+# - Processing Integrity
+# - Confidentiality
+# - Privacy
+
+policy:
+  id: "soc2-compliance"
+  version: "1.0"
+  name: "SOC 2 Compliance Policy"
+  description: "Enforces SOC 2 Trust Services Criteria for AI systems"
+  compliance_standard: "SOC 2"
+  
+  rules:
+    # Security - Access Control (CC6.1)
+    - condition:
+        input_contains_any:
+          - "admin password"
+          - "root password"
+          - "api secret"
+          - "private key"
+          - "access token"
+          - "authentication token"
+      action: block
+      reason: "SOC 2 CC6.1 - Credentials/secrets detected in input"
+      compliance_reference: "CC6.1 - Logical and Physical Access Controls"
+    
+    # Confidentiality - Sensitive data (C1.1)
+    - condition:
+        input_contains_any:
+          - "confidential"
+          - "proprietary"
+          - "trade secret"
+          - "classified"
+          - "internal only"
+      action: escalate
+      reason: "SOC 2 C1.1 - Confidential data requires additional authorization"
+      compliance_reference: "C1.1 - Confidential Information"
+    
+    # Processing Integrity - High-risk operations (PI1.1)
+    - condition:
+        input_contains_any:
+          - "delete database"
+          - "drop table"
+          - "truncate"
+          - "remove all"
+          - "execute command"
+          - "run script"
+      action: escalate
+      reason: "SOC 2 PI1.1 - High-risk operation requires approval"
+      compliance_reference: "PI1.1 - Processing Integrity"
+    
+    # Security - Change Management (CC8.1)
+    - condition:
+        input_contains_any:
+          - "deploy to production"
+          - "update configuration"
+          - "modify system"
+          - "change settings"
+      action: escalate
+      reason: "SOC 2 CC8.1 - System changes require approval"
+      compliance_reference: "CC8.1 - Change Management"
+    
+    # Privacy - Data deletion (P4.2)
+    - condition:
+        input_contains_any:
+          - "delete user data"
+          - "purge records"
+          - "remove customer"
+      action: escalate
+      reason: "SOC 2 P4.2 - Data deletion requires approval"
+      compliance_reference: "P4.2 - Data Retention and Disposal"
+    
+    # Security - Monitoring (CC7.2)
+    - condition:
+        input_contains_any:
+          - "disable logging"
+          - "turn off monitoring"
+          - "stop audit"
+      action: block
+      reason: "SOC 2 CC7.2 - Cannot disable security monitoring"
+      compliance_reference: "CC7.2 - System Monitoring"
+    
+    # Availability - Critical operations (A1.1)
+    - condition:
+        input_contains_any:
+          - "shutdown system"
+          - "stop service"
+          - "kill process"
+      action: escalate
+      reason: "SOC 2 A1.1 - Availability impact requires approval"
+      compliance_reference: "A1.1 - System Availability"
