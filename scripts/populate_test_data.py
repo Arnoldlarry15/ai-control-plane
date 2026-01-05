@@ -63,6 +63,7 @@ def populate_sample_data():
     
     # Generate varied execution events
     num_events = 50
+    policy_violation_count = 0
     
     for i in range(num_events):
         execution_id = str(uuid.uuid4())
@@ -83,11 +84,13 @@ def populate_sample_data():
             response = None
             reason = "PII detected in prompt"
             policy_id = "no-pii-policy"
+            policy_violation_count += 1
         else:
             status = "escalated"
             response = None
             reason = "High-risk operation requires approval"
             policy_id = "high-risk-approval"
+            policy_violation_count += 1
         
         # Vary latencies
         latency_ms = random.randint(50, 500)
@@ -155,7 +158,7 @@ def populate_sample_data():
     )
     
     print(f"✅ Successfully populated {num_events + 3} execution events")
-    print(f"✅ Added {len([1 for _ in range(num_events) if random.random() > 0.75])} policy violation events")
+    print(f"✅ Added {policy_violation_count} policy violation events")
     print(f"✅ Added 3 high-risk security events")
     print(f"✅ Added 1 kill switch event")
     print("\nTest data ready! Visit http://127.0.0.1:8000/dashboard to see the results")

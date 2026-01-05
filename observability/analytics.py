@@ -68,9 +68,9 @@ class AnalyticsService:
         latencies = [e.get("latency_ms", 0) for e in execution_events if e.get("latency_ms")]
         avg_latency = sum(latencies) / len(latencies) if latencies else 0
         
-        # Calculate p95 latency
+        # Calculate p95 latency (with bounds safety)
         sorted_latencies = sorted(latencies)
-        p95_index = int(len(sorted_latencies) * 0.95)
+        p95_index = min(int(len(sorted_latencies) * 0.95), len(sorted_latencies) - 1)
         p95_latency = sorted_latencies[p95_index] if sorted_latencies else 0
         
         # Count unique users and agents
@@ -122,6 +122,7 @@ class AnalyticsService:
         escalated = status_counts.get("escalated", 0)
         error = status_counts.get("error", 0)
         
+        # Calculate rates (Note: allow_rate + block_rate may not equal 100% due to escalated/error statuses)
         allow_rate = (allowed / total * 100) if total > 0 else 0
         block_rate = (blocked / total * 100) if total > 0 else 0
         
