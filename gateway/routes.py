@@ -254,3 +254,201 @@ async def gateway_status():
         "registry": {"agents": len(registry.list_agents())},
         "policies": {"count": len(policy_evaluator.list_policies())},
     }
+
+
+# Enhanced platform endpoints
+
+@router.get("/audit/integrity")
+async def verify_audit_integrity():
+    """
+    Verify cryptographic integrity of audit trail.
+    
+    Returns integrity status with tamper detection.
+    """
+    try:
+        from observability.audit_trail import AuditTrail
+        audit_trail = AuditTrail()  # In production, use shared instance
+        
+        integrity = audit_trail.verify_integrity()
+        return integrity
+    except Exception as e:
+        logger.error(f"Audit integrity check failed: {e}")
+        return {
+            "valid": False,
+            "error": str(e),
+            "message": "Audit integrity check unavailable"
+        }
+
+
+@router.get("/audit/export")
+async def export_audit_trail(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    format: str = "json"
+):
+    """
+    Export audit trail for compliance.
+    
+    Supports JSON and CSV formats.
+    Subpoena-ready exports with cryptographic verification.
+    """
+    try:
+        from observability.audit_trail import AuditTrail
+        audit_trail = AuditTrail()  # In production, use shared instance
+        
+        export_data = audit_trail.export_for_compliance(
+            start_date=start_date,
+            end_date=end_date,
+            format=format
+        )
+        
+        if format == "csv":
+            from fastapi.responses import Response
+            return Response(
+                content=export_data,
+                media_type="text/csv",
+                headers={"Content-Disposition": "attachment; filename=audit_trail.csv"}
+            )
+        
+        return {"export": export_data}
+    except Exception as e:
+        logger.error(f"Audit export failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/audit/chain-of-custody/{execution_id}")
+async def get_chain_of_custody(execution_id: str):
+    """
+    Get chain of custody for specific execution.
+    
+    This is what you present in court or to regulators.
+    Includes full timeline with cryptographic verification.
+    """
+    try:
+        from observability.audit_trail import AuditTrail
+        audit_trail = AuditTrail()  # In production, use shared instance
+        
+        chain = audit_trail.get_chain_of_custody(execution_id)
+        return chain
+    except Exception as e:
+        logger.error(f"Chain of custody retrieval failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/plugins")
+async def list_plugins():
+    """
+    List all registered plugins.
+    
+    Shows available extensions: risk scorers, compliance modules, hooks, etc.
+    """
+    try:
+        from policy.plugins import PluginRegistry
+        plugin_registry = PluginRegistry()  # In production, use shared instance
+        
+        return {"plugins": plugin_registry.list_plugins()}
+    except Exception as e:
+        logger.error(f"Plugin listing failed: {e}")
+        return {"plugins": [], "error": str(e)}
+
+
+@router.post("/policies/dry-run")
+async def dry_run_policy(
+    agent_id: str,
+    prompt: str,
+    context: Dict[str, Any] = {}
+):
+    """
+    Test policy evaluation without executing.
+    
+    Shows what would happen without actually executing AI.
+    Useful for policy testing and debugging.
+    """
+    try:
+        from policy.explainer import PolicyExplainer
+        
+        # Get agent
+        agent = registry.get_agent(agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Evaluate policies
+        enhanced_context = {
+            **context,
+            "agent": agent,
+            "agent_id": agent_id,
+            "prompt": prompt,
+        }
+        
+        decision = policy_evaluator.evaluate(
+            agent=agent,
+            prompt=prompt,
+            context=context,
+            user=context.get("user"),
+        )
+        
+        # Generate explanation
+        explainer = PolicyExplainer()
+        all_policies = policy_evaluator.list_policies()
+        
+        report = explainer.generate_dry_run_report(
+            context=enhanced_context,
+            all_policies=all_policies
+        )
+        
+        return {
+            "dry_run": True,
+            "decision": decision,
+            "report": report,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Dry-run failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/policies/templates")
+async def list_policy_templates():
+    """
+    List available policy templates.
+    
+    Pre-built templates for common use cases.
+    """
+    try:
+        from policy.dsl import POLICY_TEMPLATES
+        
+        return {
+            "templates": [
+                {
+                    "id": template_id,
+                    "name": template["name"],
+                    "description": template["description"],
+                }
+                for template_id, template in POLICY_TEMPLATES.items()
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Template listing failed: {e}")
+        return {"templates": [], "error": str(e)}
+
+
+@router.get("/policies/templates/{template_id}")
+async def get_policy_template(template_id: str):
+    """
+    Get a specific policy template.
+    
+    Returns template definition with variable placeholders.
+    """
+    try:
+        from policy.dsl import POLICY_TEMPLATES
+        
+        if template_id not in POLICY_TEMPLATES:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        return {"template": POLICY_TEMPLATES[template_id]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Template retrieval failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
