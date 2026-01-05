@@ -98,7 +98,7 @@ auth = AuthService()
 # Create a developer user
 user = auth.create_user(
     user_id="alice",
-    email="alice@example.com",
+    email="alice@company.test",
     full_name="Alice Developer",
     role=Role.DEVELOPER,
 )
@@ -201,7 +201,7 @@ All operations are logged with user identity:
     "timestamp": "2026-01-04T19:00:00Z",
     "event_type": "agent_created",
     "user_id": "alice",
-    "user_email": "alice@example.com",
+    "user_email": "alice@company.test",
     "user_role": "developer",
     "agent_id": "agent-123",
     "result": "success"
@@ -287,7 +287,7 @@ Create dedicated service accounts:
 # Create service account
 service = auth.create_user(
     user_id="production-app",
-    email="no-reply@example.com",
+    email="no-reply@company.test",
     full_name="Production Application",
     role=Role.USER,
 )
@@ -324,7 +324,7 @@ def authenticate_ldap(username, password):
         if not user:
             user = auth.create_user(
                 user_id=username,
-                email=f"{username}@example.com",
+                email=f"{username}@company.test",
                 full_name=get_ldap_name(username),
                 role=get_ldap_role(username),
             )
@@ -468,7 +468,7 @@ elif key.expires_at and key.expires_at < datetime.utcnow():
 ```python
 admin = auth.create_user(
     user_id="admin",
-    email="admin@example.com",
+    email="admin@company.test",
     full_name="System Administrator",
     role=Role.ADMIN,
 )

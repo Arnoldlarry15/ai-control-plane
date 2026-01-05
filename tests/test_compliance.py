@@ -103,7 +103,7 @@ def test_gdpr_ssn_detection():
         agent=agent,
         prompt="My SSN is 123-45-6789",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     # GDPR doesn't block SSN directly, but HIPAA would
@@ -128,7 +128,7 @@ def test_hipaa_ssn_blocking():
         agent=agent,
         prompt="Patient SSN is 123-45-6789",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["action"] == "block"
@@ -152,7 +152,7 @@ def test_pci_dss_cvv_blocking():
         agent=agent,
         prompt="Card CVV: 123",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["action"] == "block"
@@ -177,7 +177,7 @@ def test_pci_dss_card_number_blocking():
         agent=agent,
         prompt="Process card 4532-1234-5678-9010",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["action"] == "block"
@@ -201,7 +201,7 @@ def test_soc2_credential_blocking():
         agent=agent,
         prompt="Store admin password: secret123",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["action"] == "block"
@@ -230,7 +230,7 @@ def test_multiple_compliance_policies():
         agent=agent,
         prompt="SSN: 123-45-6789",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["action"] == "block"

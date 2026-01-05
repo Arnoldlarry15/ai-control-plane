@@ -15,13 +15,13 @@ def test_create_user():
     
     user = auth.create_user(
         user_id="alice",
-        email="alice@example.com",
+        email="alice@company.test",
         full_name="Alice Developer",
         role=Role.DEVELOPER,
     )
     
     assert user.id == "alice"
-    assert user.email == "alice@example.com"
+    assert user.email == "alice@company.test"
     assert user.role == Role.DEVELOPER
     assert user.active is True
 
@@ -30,17 +30,17 @@ def test_duplicate_user():
     """Test that duplicate user creation fails."""
     auth = AuthService()
     
-    auth.create_user("alice", "alice@example.com", "Alice", Role.USER)
+    auth.create_user("alice", "alice@company.test", "Alice", Role.USER)
     
     with pytest.raises(ValueError, match="already exists"):
-        auth.create_user("alice", "alice2@example.com", "Alice 2", Role.USER)
+        auth.create_user("alice", "alice2@company.test", "Alice 2", Role.USER)
 
 
 def test_api_key_creation():
     """Test API key creation."""
     auth = AuthService()
     
-    user = auth.create_user("bob", "bob@example.com", "Bob", Role.USER)
+    user = auth.create_user("bob", "bob@company.test", "Bob", Role.USER)
     api_key = auth.create_api_key("bob", "Test Key")
     
     assert api_key is not None
@@ -51,7 +51,7 @@ def test_api_key_authentication():
     """Test API key authentication."""
     auth = AuthService()
     
-    user = auth.create_user("charlie", "charlie@example.com", "Charlie", Role.USER)
+    user = auth.create_user("charlie", "charlie@company.test", "Charlie", Role.USER)
     api_key = auth.create_api_key("charlie", "Test Key")
     
     # Authenticate with key
@@ -74,7 +74,7 @@ def test_revoke_api_key():
     """Test API key revocation."""
     auth = AuthService()
     
-    user = auth.create_user("dave", "dave@example.com", "Dave", Role.USER)
+    user = auth.create_user("dave", "dave@company.test", "Dave", Role.USER)
     api_key = auth.create_api_key("dave", "Test Key")
     
     # Key should work
@@ -91,7 +91,7 @@ def test_api_key_expiration():
     """Test API key expiration."""
     auth = AuthService()
     
-    user = auth.create_user("eve", "eve@example.com", "Eve", Role.USER)
+    user = auth.create_user("eve", "eve@company.test", "Eve", Role.USER)
     
     # Create expired key
     expired_time = datetime.utcnow() - timedelta(days=1)
@@ -112,13 +112,13 @@ def test_role_permissions():
     assert admin.has_permission(Permission.KILL_SWITCH_ACTIVATE)
     
     # Developer has limited permissions
-    dev = auth.create_user("dev", "dev@example.com", "Dev", Role.DEVELOPER)
+    dev = auth.create_user("dev", "dev@company.test", "Dev", Role.DEVELOPER)
     assert dev.has_permission(Permission.AGENT_WRITE)
     assert dev.has_permission(Permission.EXECUTE)
     assert not dev.has_permission(Permission.KILL_SWITCH_ACTIVATE)
     
     # User has minimal permissions
-    user = auth.create_user("user", "user@example.com", "User", Role.USER)
+    user = auth.create_user("user", "user@company.test", "User", Role.USER)
     assert user.has_permission(Permission.EXECUTE)
     assert not user.has_permission(Permission.AGENT_WRITE)
     assert not user.has_permission(Permission.ADMIN)
@@ -128,8 +128,8 @@ def test_authorize():
     """Test authorization checking."""
     auth = AuthService()
     
-    admin = auth.create_user("admin2", "admin2@example.com", "Admin", Role.ADMIN)
-    user = auth.create_user("user2", "user2@example.com", "User", Role.USER)
+    admin = auth.create_user("admin2", "admin2@company.test", "Admin", Role.ADMIN)
+    user = auth.create_user("user2", "user2@company.test", "User", Role.USER)
     
     # Admin can do everything
     assert auth.authorize(admin, Permission.ADMIN) is True
@@ -147,8 +147,8 @@ def test_list_users():
     
     initial_count = len(auth.list_users())
     
-    auth.create_user("user1", "user1@example.com", "User 1", Role.USER)
-    auth.create_user("user2", "user2@example.com", "User 2", Role.DEVELOPER)
+    auth.create_user("user1", "user1@company.test", "User 1", Role.USER)
+    auth.create_user("user2", "user2@company.test", "User 2", Role.DEVELOPER)
     
     users = auth.list_users()
     assert len(users) == initial_count + 2
@@ -158,7 +158,7 @@ def test_list_api_keys():
     """Test listing user's API keys."""
     auth = AuthService()
     
-    user = auth.create_user("frank", "frank@example.com", "Frank", Role.USER)
+    user = auth.create_user("frank", "frank@company.test", "Frank", Role.USER)
     
     key1 = auth.create_api_key("frank", "Key 1")
     key2 = auth.create_api_key("frank", "Key 2")

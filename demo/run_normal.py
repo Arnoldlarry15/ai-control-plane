@@ -25,13 +25,13 @@ def main():
     print("\n🚀 Executing request...")
     print("   Agent: customer-support-bot")
     print("   Prompt: 'What are your business hours?'")
-    print("   User: alice@example.com")
+    print("   User: alice@company.test")
     
     try:
         response = client.execute(
             agent_id="customer-support-bot",
             prompt="What are your business hours?",
-            user="alice@example.com",
+            user="alice@company.test",
             context={"source": "web-chat"},
         )
         

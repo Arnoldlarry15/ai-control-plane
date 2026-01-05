@@ -513,7 +513,7 @@ def test_gdpr_pii_detection():
         policy,
         prompt="Delete my racial background data",
         context={},
-        user="test@example.com",
+        user="test@company.test",
     )
     
     assert result["action"] == "block"

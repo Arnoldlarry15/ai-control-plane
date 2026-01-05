@@ -150,7 +150,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: admin@example.com
+    email: admin@company.test
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:

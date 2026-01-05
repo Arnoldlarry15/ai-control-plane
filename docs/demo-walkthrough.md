@@ -83,7 +83,7 @@ python demo/run_normal.py
 {
   "agent_id": "customer-support-bot",
   "prompt": "What are your business hours?",
-  "user": "alice@example.com"
+  "user": "alice@company.test"
 }
 ```
 
@@ -131,7 +131,7 @@ python demo/trigger_violation.py
 {
   "agent_id": "customer-support-bot",
   "prompt": "My SSN is 123-45-6789 and I need help",
-  "user": "bob@example.com"
+  "user": "bob@company.test"
 }
 ```
 
@@ -181,7 +181,7 @@ python demo/request_approval.py
 {
   "agent_id": "customer-support-bot",
   "prompt": "Cancel my subscription and delete my account",
-  "user": "charlie@example.com"
+  "user": "charlie@company.test"
 }
 ```
 
@@ -210,7 +210,7 @@ curl http://localhost:8000/api/approvals/pending
 # Approve it (requires admin token)
 curl -X POST http://localhost:8000/api/approvals/approval-5678/approve \
   -H "Authorization: Bearer <admin-token>" \
-  -d '{"reviewer": "manager@example.com", "comment": "Approved per policy"}'
+  -d '{"reviewer": "manager@company.test", "comment": "Approved per policy"}'
 ```
 
 **Check approval status**:
@@ -223,7 +223,7 @@ python demo/check_approval_status.py --approval-id approval-5678
 {
   "approval_id": "approval-5678",
   "status": "approved",
-  "reviewer": "manager@example.com",
+  "reviewer": "manager@company.test",
   "reviewed_at": "2026-01-04T16:30:00Z",
   "execution_id": "exec-1236"
 }
@@ -256,7 +256,7 @@ curl -X POST http://localhost:8000/api/kill-switch/activate \
   "status": "activated",
   "scope": "global",
   "reason": "Emergency maintenance",
-  "activated_by": "admin@example.com",
+  "activated_by": "admin@company.test",
   "activated_at": "2026-01-04T16:35:00Z"
 }
 ```
@@ -306,7 +306,7 @@ View complete history:
 
 ```bash
 # Get all executions for a user
-curl http://localhost:8000/api/logs?user=alice@example.com
+curl http://localhost:8000/api/logs?user=alice@company.test
 
 # Get all policy violations
 curl http://localhost:8000/api/logs?status=blocked

@@ -40,7 +40,7 @@ def demo_rbac():
     
     developer = auth.create_user(
         "alice",
-        "alice@example.com",
+        "alice@company.test",
         "Alice Developer",
         Role.DEVELOPER
     )
@@ -48,7 +48,7 @@ def demo_rbac():
     
     auditor = auth.create_user(
         "bob",
-        "bob@example.com",
+        "bob@company.test",
         "Bob Auditor",
         Role.AUDITOR
     )
@@ -56,7 +56,7 @@ def demo_rbac():
     
     user = auth.create_user(
         "charlie",
-        "charlie@example.com",
+        "charlie@company.test",
         "Charlie User",
         Role.USER
     )
@@ -141,7 +141,7 @@ def demo_policy_enforcement():
         agent=agent,
         prompt="Patient SSN is 123-45-6789",
         context={},
-        user="doctor@hospital.com"
+        user="doctor@hospital.test"
     )
     print(f"    Input: 'Patient SSN is 123-45-6789'")
     print(f"    Action: {result['action'].upper()}")
@@ -153,7 +153,7 @@ def demo_policy_enforcement():
         agent=agent,
         prompt="What are the symptoms of diabetes?",
         context={},
-        user="doctor@hospital.com"
+        user="doctor@hospital.test"
     )
     print(f"    Input: 'What are the symptoms of diabetes?'")
     print(f"    Action: {result['action'].upper()}")
@@ -175,7 +175,7 @@ def demo_policy_enforcement():
         agent=payment_agent,
         prompt="Process card 4532-1234-5678-9010",
         context={},
-        user="cashier@store.com"
+        user="cashier@store.test"
     )
     print(f"    Input: 'Process card 4532-1234-5678-9010'")
     print(f"    Action: {result['action'].upper()}")
@@ -187,7 +187,7 @@ def demo_policy_enforcement():
         agent=payment_agent,
         prompt="Card CVV is 123",
         context={},
-        user="cashier@store.com"
+        user="cashier@store.test"
     )
     print(f"    Input: 'Card CVV is 123'")
     print(f"    Action: {result['action'].upper()}")
@@ -210,7 +210,7 @@ def demo_policy_enforcement():
         agent=admin_agent,
         prompt="Store admin password: secret123",
         context={},
-        user="sysadmin@company.com"
+        user="sysadmin@company.test"
     )
     print(f"    Input: 'Store admin password: secret123'")
     print(f"    Action: {result['action'].upper()}")

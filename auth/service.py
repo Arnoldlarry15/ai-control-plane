@@ -32,7 +32,7 @@ class AuthService:
         # Create default admin user
         admin_user = User(
             id="admin",
-            email="admin@example.com",
+            email="admin@company.test",
             full_name="System Administrator",
             role=Role.ADMIN,
         )

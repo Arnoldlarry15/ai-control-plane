@@ -79,7 +79,7 @@ agent = client.register_agent(
 response = client.execute(
     agent_id=agent["agent_id"],
     prompt="What are your business hours?",
-    user="user@example.com"
+    user="user@company.test"
 )
 
 print(response["response"])
