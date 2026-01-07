@@ -423,6 +423,7 @@ ai-control-plane/
 - [Deployment Guide](docs/deployment-guide.md) - Kubernetes and Helm
 - [RBAC Guide](docs/rbac-guide.md) - Access control setup
 - [Compliance Guide](docs/compliance-guide.md) - GDPR, HIPAA, SOC 2, PCI-DSS
+- **[Identity & Observability Guide](docs/identity-and-observability.md)** - Phase 2 & 3: Identity tracking and human-centric observability
 
 ### Extensibility (Phase 4 - New! ✨)
 - **[Plugin Development Guide](docs/plugin-development.md)** - Creating custom plugins
