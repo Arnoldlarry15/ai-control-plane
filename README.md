@@ -1,7 +1,7 @@
 # ai-control-plane
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Arnoldlarry15/ai-control-plane/releases/tag/v1.0.0)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](CHANGELOG.md)
 
@@ -1135,7 +1135,7 @@ Located in `scripts/`:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 

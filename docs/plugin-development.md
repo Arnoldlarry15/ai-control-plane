@@ -424,4 +424,4 @@ class MyPlugin(PolicyPlugin):
 
 ## License
 
-Plugins can use any license compatible with MIT.
+Plugins can use any license compatible with Apache 2.0.

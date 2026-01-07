@@ -25,7 +25,7 @@
     "ai-safety"
   ],
   "author": "AI Control Plane Contributors",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Arnoldlarry15/ai-control-plane.git",
