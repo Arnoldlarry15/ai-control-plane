@@ -1,0 +1,21 @@
+# Development PII Access Allowed
+#
+# Purpose: Allow PII access in development environment for testing purposes
+#
+# Use Case: Developers need to test PII handling without approval overhead
+
+id: "dev_pii_allow"
+version: "1.0.0"
+description: "PII access allowed in development environment"
+
+scope:
+  environment:
+    - "development"
+    - "dev"
+
+conditions:
+  tags:
+    - "pii"
+
+effect: "ALLOW"
+priority: 50

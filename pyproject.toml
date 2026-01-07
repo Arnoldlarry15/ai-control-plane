@@ -88,6 +88,12 @@ packages = [
     "registry", 
     "policy",
     "policy.compliance",
+    "control_plane",
+    "control_plane.policy",
+    "control_plane.policy.schemas",
+    "control_plane.policy.engine",
+    "control_plane.policy.policies",
+    "control_plane.policy.policies.examples",
     "observability",
     "approval",
     "kill_switch",
@@ -100,6 +106,7 @@ packages = [
 
 [tool.setuptools.package-data]
 "policy.compliance" = ["*.yaml"]
+"control_plane.policy.policies.examples" = ["*.yaml", "*.json"]
 "dashboard" = ["templates/*.html"]
 
 [project.scripts]

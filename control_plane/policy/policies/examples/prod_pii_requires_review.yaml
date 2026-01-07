@@ -1,0 +1,24 @@
+# Production PII Access Requires Review
+#
+# Purpose: Ensure that any access to PII data in production environment
+# requires human approval before proceeding.
+#
+# Use Case: Compliance with data protection regulations (GDPR, CCPA, HIPAA)
+
+id: "prod_pii_requires_review"
+version: "1.0.0"
+description: "Access to PII in production requires human approval"
+
+scope:
+  environment:
+    - "production"
+  resource_type:
+    - "model"
+    - "agent"
+
+conditions:
+  tags:
+    - "pii"
+
+effect: "REVIEW"
+priority: 100

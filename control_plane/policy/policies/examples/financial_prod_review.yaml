@@ -1,0 +1,20 @@
+# Financial Data Production Control
+#
+# Purpose: Strict control over financial data access in production
+#
+# Use Case: SOX compliance, financial regulations, audit requirements
+
+id: "financial_prod_review"
+version: "1.0.0"
+description: "Financial data access in production requires approval"
+
+scope:
+  environment:
+    - "production"
+
+conditions:
+  tags:
+    - "financial"
+
+effect: "REVIEW"
+priority: 120
