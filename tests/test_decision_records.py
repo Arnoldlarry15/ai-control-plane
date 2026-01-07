@@ -298,29 +298,33 @@ def test_get_statistics():
     """Test getting decision statistics."""
     store = DecisionRecordStore()
     
-    # Store multiple decisions
-    for i in range(10):
-        # i%4==0 or i%4==1 will have approvers (gives us 0,1,4,5,8,9 -> approver-0,1,0,1,0,1)
-        has_approver = i % 4 in [0, 1]
-        record = DecisionRecord(
-            execution_id=f"exec-{i}",
-            correlation_id=f"corr-{i}",
-            request_timestamp=f"2024-01-01T12:00:{i:02d}Z",
-            decision_timestamp=f"2024-01-01T12:00:{i:02d}Z",
-            requester_id=f"user-{i % 3}",
-            requester_name=f"User {i % 3}",
+    # Helper function to create test decision
+    def create_test_decision(index):
+        # Approvers for indices 0, 1, 4, 5, 8, 9 (alternating between approver-0 and approver-1)
+        has_approver = index % 4 in [0, 1]
+        
+        return DecisionRecord(
+            execution_id=f"exec-{index}",
+            correlation_id=f"corr-{index}",
+            request_timestamp=f"2024-01-01T12:00:{index:02d}Z",
+            decision_timestamp=f"2024-01-01T12:00:{index:02d}Z",
+            requester_id=f"user-{index % 3}",  # 3 unique requesters (0, 1, 2)
+            requester_name=f"User {index % 3}",
             requester_role="developer",
-            approver_id=f"approver-{i % 2}" if has_approver else None,
-            approver_name=f"Approver {i % 2}" if has_approver else None,
+            approver_id=f"approver-{index % 2}" if has_approver else None,  # 2 unique approvers (0, 1)
+            approver_name=f"Approver {index % 2}" if has_approver else None,
             approver_role="approver" if has_approver else None,
-            decision="allow" if i % 3 == 0 else "block",
+            decision="allow" if index % 3 == 0 else "block",
             reason="Test reason",
-            policy_id=f"pol-{i % 5}",
-            policy_name=f"Policy {i % 5}",
+            policy_id=f"pol-{index % 5}",  # 5 unique policies
+            policy_name=f"Policy {index % 5}",
             agent_id="agent-456",
-            status="success" if i % 3 == 0 else "blocked",
+            status="success" if index % 3 == 0 else "blocked",
         )
-        store.store_decision(record)
+    
+    # Store 10 test decisions
+    for i in range(10):
+        store.store_decision(create_test_decision(i))
     
     stats = store.get_statistics()
     

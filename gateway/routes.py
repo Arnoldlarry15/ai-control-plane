@@ -1169,7 +1169,7 @@ async def query_decisions(
         
         return {
             "total": len(records),
-            "records": [r.dict() for r in records]
+            "records": [r.model_dump() for r in records]
         }
     except HTTPException:
         raise
