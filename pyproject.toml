@@ -92,6 +92,8 @@ packages = [
     "control_plane.policy",
     "control_plane.policy.schemas",
     "control_plane.policy.engine",
+    "control_plane.policy.policies",
+    "control_plane.policy.policies.examples",
     "observability",
     "approval",
     "kill_switch",

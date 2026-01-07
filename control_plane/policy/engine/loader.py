@@ -64,9 +64,12 @@ def load_policies_from_directory(directory: str, pattern: str = "*.yaml") -> Lis
     """
     Load all policies from a directory.
     
+    Loads files matching the pattern. Supports both YAML and JSON files.
+    
     Args:
         directory: Path to directory containing policy files
-        pattern: File pattern to match (default: *.yaml)
+        pattern: Glob pattern to match files (default: *.yaml)
+                Commonly used patterns: "*.yaml", "*.json", "*.yml", "policy_*.yaml"
         
     Returns:
         List of PolicySchema instances
@@ -80,7 +83,9 @@ def load_policies_from_directory(directory: str, pattern: str = "*.yaml") -> Lis
     policies = []
     path = Path(directory)
     
+    # Use the pattern to find files
     for filepath in path.glob(pattern):
+        # Load based on file extension
         if filepath.suffix in ['.yaml', '.yml']:
             policy = load_policy_from_yaml_file(str(filepath))
             policies.append(policy)

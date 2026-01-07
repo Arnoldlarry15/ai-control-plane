@@ -38,7 +38,13 @@ class RequestContext:
     metadata: Dict[str, str]
     
     def __post_init__(self):
-        """Validate context on initialization."""
+        """
+        Validate context on initialization.
+        
+        Note: Uses object.__setattr__ to modify frozen dataclass attributes
+        to ensure proper types (list/dict) before freezing. This is a standard
+        pattern for frozen dataclasses that need validation or type coercion.
+        """
         if not self.actor_id:
             raise ValueError("actor_id is required")
         if not self.resource_id:
@@ -46,10 +52,10 @@ class RequestContext:
         if not self.environment:
             raise ValueError("environment is required")
         
-        # Ensure tags is a list
+        # Ensure tags is a list (coerce if needed before freezing)
         if not isinstance(self.tags, list):
             object.__setattr__(self, 'tags', list(self.tags))
         
-        # Ensure metadata is a dict
+        # Ensure metadata is a dict (coerce if needed before freezing)
         if not isinstance(self.metadata, dict):
             object.__setattr__(self, 'metadata', dict(self.metadata))

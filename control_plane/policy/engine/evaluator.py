@@ -142,11 +142,12 @@ def _conditions_match(conditions: dict, context: RequestContext) -> bool:
     Check if policy conditions match request context.
     
     Conditions define when the policy triggers:
-    - tags: Must have at least one of these tags
-    - metadata: Must have these metadata key-value pairs
+    - tags: Must have at least one of these tags (OR logic)
+    - metadata: Must have ALL of these metadata key-value pairs (AND logic)
+    - intent: Must match this intent
     
     If conditions is empty, policy always triggers.
-    If conditions has fields, at least one must match.
+    All specified condition types must match (AND between types).
     
     Args:
         conditions: Policy conditions

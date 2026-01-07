@@ -18,11 +18,14 @@ class TestPolicyEngineAdapter:
     
     def test_adapter_initialization(self):
         """Test adapter initializes correctly."""
-        adapter = PolicyEngineAdapter(policies_directory="/tmp/nonexistent")
-        
-        # Should initialize without error even if directory doesn't exist
-        assert adapter is not None
-        assert adapter.policies == []
+        # Use a non-existent directory that works cross-platform
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nonexistent = os.path.join(tmpdir, "nonexistent")
+            adapter = PolicyEngineAdapter(policies_directory=nonexistent)
+            
+            # Should initialize without error even if directory doesn't exist
+            assert adapter is not None
+            assert adapter.policies == []
     
     def test_adapter_loads_policies(self):
         """Test adapter loads policies from directory."""
@@ -52,29 +55,31 @@ class TestPolicyEngineAdapter:
     
     def test_evaluate_gateway_format(self):
         """Test evaluate returns gateway-compatible format."""
-        adapter = PolicyEngineAdapter(policies_directory="/tmp/nonexistent")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nonexistent = os.path.join(tmpdir, "nonexistent")
+            adapter = PolicyEngineAdapter(policies_directory=nonexistent)
         
-        # Create test data
-        agent = {
-            "id": "test_agent",
-            "model": "gpt-4",
-            "risk_level": "medium",
-            "tags": []
-        }
-        
-        # Evaluate (no policies, should ALLOW)
-        decision = adapter.evaluate(
-            agent=agent,
-            prompt="Test prompt",
-            context={},
-            user="test_user"
-        )
-        
-        # Check format
-        assert "action" in decision
-        assert "reason" in decision
-        assert "policy_id" in decision
-        assert decision["action"] == "allow"
+            # Create test data
+            agent = {
+                "id": "test_agent",
+                "model": "gpt-4",
+                "risk_level": "medium",
+                "tags": []
+            }
+            
+            # Evaluate (no policies, should ALLOW)
+            decision = adapter.evaluate(
+                agent=agent,
+                prompt="Test prompt",
+                context={},
+                user="test_user"
+            )
+            
+            # Check format
+            assert "action" in decision
+            assert "reason" in decision
+            assert "policy_id" in decision
+            assert decision["action"] == "allow"
     
     def test_evaluate_with_policy(self):
         """Test evaluation with actual policy."""
@@ -120,85 +125,89 @@ class TestPolicyEngineAdapter:
     
     def test_context_building(self):
         """Test RequestContext is built correctly from gateway data."""
-        adapter = PolicyEngineAdapter(policies_directory="/tmp/nonexistent")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nonexistent = os.path.join(tmpdir, "nonexistent")
+            adapter = PolicyEngineAdapter(policies_directory=nonexistent)
         
-        # Create test data
-        agent = {
-            "id": "agent_123",
-            "model": "gpt-4",
-            "risk_level": "high",
-            "tags": ["production"]
-        }
-        
-        context = {
-            "environment": "production",
-            "role": "developer",
-            "intent": "data_access",
-            "tags": ["pii", "sensitive"],
-            "metadata": {"department": "finance"}
-        }
-        
-        # Build context
-        request_context = adapter._build_request_context(
-            agent=agent,
-            prompt="Test",
-            context=context,
-            user="user_456"
-        )
-        
-        # Verify mapping
-        assert request_context.actor_id == "user_456"
-        assert request_context.actor_role == "developer"
-        assert request_context.resource_id == "agent_123"
-        assert request_context.resource_type == "agent"
-        assert request_context.environment == "production"
-        assert request_context.intent == "data_access"
-        
-        # Check tags are combined
-        assert "production" in request_context.tags
-        assert "pii" in request_context.tags
-        assert "sensitive" in request_context.tags
-        
-        # Check metadata
-        assert request_context.metadata["department"] == "finance"
-        assert request_context.metadata["model"] == "gpt-4"
-        assert request_context.metadata["risk_level"] == "high"
+            # Create test data
+            agent = {
+                "id": "agent_123",
+                "model": "gpt-4",
+                "risk_level": "high",
+                "tags": ["production"]
+            }
+            
+            context = {
+                "environment": "production",
+                "role": "developer",
+                "intent": "data_access",
+                "tags": ["pii", "sensitive"],
+                "metadata": {"department": "finance"}
+            }
+            
+            # Build context
+            request_context = adapter._build_request_context(
+                agent=agent,
+                prompt="Test",
+                context=context,
+                user="user_456"
+            )
+            
+            # Verify mapping
+            assert request_context.actor_id == "user_456"
+            assert request_context.actor_role == "developer"
+            assert request_context.resource_id == "agent_123"
+            assert request_context.resource_type == "agent"
+            assert request_context.environment == "production"
+            assert request_context.intent == "data_access"
+            
+            # Check tags are combined
+            assert "production" in request_context.tags
+            assert "pii" in request_context.tags
+            assert "sensitive" in request_context.tags
+            
+            # Check metadata
+            assert request_context.metadata["department"] == "finance"
+            assert request_context.metadata["model"] == "gpt-4"
+            assert request_context.metadata["risk_level"] == "high"
     
     def test_decision_conversion(self):
         """Test decision conversion to gateway format."""
         from control_plane.policy.schemas.decision import PolicyDecision, DecisionType
         
-        adapter = PolicyEngineAdapter(policies_directory="/tmp/nonexistent")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nonexistent = os.path.join(tmpdir, "nonexistent")
+            adapter = PolicyEngineAdapter(policies_directory=nonexistent)
         
-        # Test ALLOW conversion
-        allow_decision = PolicyDecision(
-            decision=DecisionType.ALLOW,
-            matched_policies=["policy1"],
-            reason="Test allow"
-        )
-        result = adapter._convert_decision_to_gateway_format(allow_decision)
-        assert result["action"] == "allow"
-        assert result["reason"] == "Test allow"
-        
-        # Test DENY conversion
-        deny_decision = PolicyDecision(
-            decision=DecisionType.DENY,
-            matched_policies=["policy2"],
-            reason="Test deny"
-        )
-        result = adapter._convert_decision_to_gateway_format(deny_decision)
-        assert result["action"] == "block"
-        assert result["policy_id"] == "policy2"
-        
-        # Test REVIEW conversion
-        review_decision = PolicyDecision(
-            decision=DecisionType.REVIEW,
-            matched_policies=["policy3", "policy4"],
-            reason="Test review"
-        )
-        result = adapter._convert_decision_to_gateway_format(review_decision)
-        assert result["action"] == "escalate"
-        assert result["matched_policies"] == ["policy3", "policy4"]
+            # Test ALLOW conversion
+            allow_decision = PolicyDecision(
+                decision=DecisionType.ALLOW,
+                matched_policies=["policy1"],
+                reason="Test allow"
+            )
+            result = adapter._convert_decision_to_gateway_format(allow_decision)
+            assert result["action"] == "allow"
+            assert result["reason"] == "Test allow"
+            
+            # Test DENY conversion
+            deny_decision = PolicyDecision(
+                decision=DecisionType.DENY,
+                matched_policies=["policy2"],
+                reason="Test deny"
+            )
+            result = adapter._convert_decision_to_gateway_format(deny_decision)
+            assert result["action"] == "block"
+            assert result["policy_id"] == "policy2"
+            
+            # Test REVIEW conversion
+            review_decision = PolicyDecision(
+                decision=DecisionType.REVIEW,
+                matched_policies=["policy3", "policy4"],
+                reason="Test review"
+            )
+            result = adapter._convert_decision_to_gateway_format(review_decision)
+            assert result["action"] == "escalate"
+            assert result["matched_policies"] == ["policy3", "policy4"]
     
     def test_reload_policies(self):
         """Test policy reloading."""
@@ -248,37 +257,41 @@ class TestPolicyEngineAdapter:
     
     def test_evaluate_anonymous_user(self):
         """Test evaluation with no user specified."""
-        adapter = PolicyEngineAdapter(policies_directory="/tmp/nonexistent")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nonexistent = os.path.join(tmpdir, "nonexistent")
+            adapter = PolicyEngineAdapter(policies_directory=nonexistent)
         
-        agent = {"id": "agent1", "tags": []}
-        
-        # Evaluate without user
-        decision = adapter.evaluate(
-            agent=agent,
-            prompt="Test",
-            context={},
-            user=None
-        )
-        
-        # Should use "anonymous"
-        assert decision["action"] == "allow"
+            agent = {"id": "agent1", "tags": []}
+            
+            # Evaluate without user
+            decision = adapter.evaluate(
+                agent=agent,
+                prompt="Test",
+                context={},
+                user=None
+            )
+            
+            # Should use "anonymous"
+            assert decision["action"] == "allow"
     
     def test_evaluate_default_environment(self):
         """Test default environment handling."""
-        adapter = PolicyEngineAdapter(policies_directory="/tmp/nonexistent")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nonexistent = os.path.join(tmpdir, "nonexistent")
+            adapter = PolicyEngineAdapter(policies_directory=nonexistent)
         
-        agent = {"id": "agent1", "tags": []}
-        
-        # Context without environment
-        decision = adapter.evaluate(
-            agent=agent,
-            prompt="Test",
-            context={},  # No environment specified
-            user="user1"
-        )
-        
-        # Should work (defaults to production from env or "production")
-        assert decision["action"] == "allow"
+            agent = {"id": "agent1", "tags": []}
+            
+            # Context without environment
+            decision = adapter.evaluate(
+                agent=agent,
+                prompt="Test",
+                context={},  # No environment specified
+                user="user1"
+            )
+            
+            # Should work (defaults to production from env or "production")
+            assert decision["action"] == "allow"
 
 
 class TestIntegrationScenarios:
