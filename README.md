@@ -271,6 +271,38 @@ python -m gateway.main
 # API docs at http://localhost:8000/api/docs
 ```
 
+### 🎯 Quick Start: The 5-Minute Experience
+
+**Option 1: Hello Governance (Fastest)**
+
+The canonical example that shows governance in action:
+
+```bash
+python examples/hello_governance.py
+```
+
+This demonstrates:
+- Agent registration
+- Policy-governed execution
+- Audit trail preservation
+- Clear error messages
+
+**Option 2: Complete SDK Walkthrough**
+
+Full feature demonstration:
+
+```bash
+python examples/sdk_walkthrough.py
+```
+
+This walks you through:
+- Agent registration with governance
+- Safe execution with policy enforcement
+- Handling blocked requests gracefully
+- Approval workflows for high-risk operations
+- Audit trail queries and compliance
+- Kill switch emergency controls
+
 ### Using the Platform
 
 #### 1. Register Your AI Agent
@@ -370,6 +402,146 @@ class MyRiskScorer(RiskScorerPlugin):
 registry = PluginRegistry()
 registry.register(MyRiskScorer())
 ```
+
+---
+
+## 🚀 New in Phases 4-7: The "Salesforce Moment"
+
+### Phase 4: Trustworthy Systems Are Allowed to Be Slower
+
+**Human-in-the-Loop Workflows That Actually Work**
+
+Certain policies trigger "pause and escalate." A human approves or rejects. The decision is stored forever.
+
+```python
+from sdk.python.client import ControlPlaneClient
+from sdk.python.exceptions import ApprovalPendingError
+
+client = ControlPlaneClient()
+
+try:
+    result = client.execute(
+        agent_id=agent_id,
+        prompt="Process this high-value transaction",
+        context={"estimated_cost": 150}
+    )
+except ApprovalPendingError as e:
+    print(f"Approval required: {e.approval_id}")
+    # Human reviews, then:
+    # status = client.get_approval_status(e.approval_id)
+```
+
+This does two things:
+1. **Satisfies real compliance requirements**
+2. **Teaches users to think before deploying power**
+
+This is where your product quietly becomes ethical infrastructure.
+
+### Phase 5: Developer Ergonomics
+
+**Safety for Free, Without Slowing Me Down**
+
+Try the canonical "hello governance" example:
+
+```bash
+python examples/hello_governance.py
+```
+
+Clear error messages that teach:
+
+```python
+{
+  "error": "Execution Blocked",
+  "reason": "PII detected in prompt",
+  "what_happened": "Your AI request was blocked by a governance policy.",
+  "why_it_happened": "The request contains personally identifiable information (PII)...",
+  "how_to_fix": [
+    "Remove PII from your prompt (emails, SSNs, phone numbers, etc.)",
+    "Use anonymized or synthetic test data",
+    "Request a policy exception from your administrator"
+  ],
+  "examples": {
+    "bad": "Process user data: john@example.com, SSN 123-45-6789",
+    "good": "Process user data: [USER_EMAIL], [USER_ID]"
+  }
+}
+```
+
+Developers should feel like: **"This tool makes me look responsible without slowing me down."**
+
+### Phase 6: Compliance as Executable Proof
+
+**Compliance Is Not Documents. It's Evidence Generators.**
+
+Instead of saying "GDPR compliant," we provide:
+
+```python
+from policy.compliance.evidence import ComplianceEvidence, ComplianceStandard
+from datetime import datetime, timedelta
+
+evidence_gen = ComplianceEvidence(audit_logger, policy_evaluator, registry)
+
+# Generate compliance report with evidence
+report = evidence_gen.generate_compliance_report(
+    standard=ComplianceStandard.GDPR,
+    start_date=datetime(2024, 1, 1),
+    end_date=datetime(2024, 12, 31)
+)
+
+# Export as certificate
+certificate = evidence_gen.export_compliance_certificate(report, format="html")
+```
+
+**What you get:**
+- "Here is the log that proves data minimization"
+- "Here is the policy that enforces retention limits"
+- "Here is the audit trail regulators can inspect"
+
+When compliance becomes queryable, you stop selling promises and start selling certainty.
+
+### Phase 7: Opinionated Defaults
+
+**Salesforce Didn't Ask Users to Design CRMs From Scratch. It Shipped Opinions.**
+
+```python
+from policy.defaults import PolicyBundle, get_policy_bundle, get_recommended_bundle
+
+# Get recommended bundle based on environment and risk
+recommended = get_recommended_bundle(
+    environment="production",
+    risk_level="high"
+)
+# Returns: PolicyBundle.SAFE_MODE
+
+# Apply pre-configured bundle
+bundle = get_policy_bundle(PolicyBundle.SAFE_MODE)
+# - Maximum safety for production
+# - PII blocking enabled
+# - High-risk model escalation required
+# - Full audit trail
+# - GDPR, HIPAA, SOC2, PCI-DSS policies
+```
+
+**Available Bundles:**
+- **safe_mode**: Maximum safety preset for production. Blocks all high-risk operations.
+- **production**: Enterprise-grade governance. Balanced security with usability.
+- **development**: Balanced for dev environments. Focus on learning and visibility.
+- **permissive**: Minimal restrictions for testing. Not for production use.
+
+**Interactive Configuration Wizard:**
+
+```python
+from policy.defaults import configure_agent_interactive
+
+config = configure_agent_interactive()
+# Guides you through best practices
+# Recommends appropriate bundle
+# Explains trade-offs
+```
+
+These defaults quietly shape behavior across the industry. That's how platforms bend reality.
+
+---
 
 ## The North Star Question
 
@@ -740,6 +912,227 @@ Not the sexiest product. That's exactly why it wins.
 
 ---
 
+## 📚 Complete Feature Reference
+
+### Core Platform Components
+
+#### 🎯 9 First-Class AI Objects (Phase 1)
+The system of record for AI governance:
+1. **Model** - AI model metadata, capabilities, costs
+2. **Agent** - Registered AI agents with policies and risk levels
+3. **Prompt** - Versioned prompt templates with A/B testing
+4. **Request** - Complete execution requests with traceability
+5. **Decision** - Policy evaluation decisions with full reasoning
+6. **Policy** - Declarative governance rules (YAML/JSON, not code)
+7. **Risk** - Comprehensive risk assessments with factors
+8. **Approval** - Human-in-the-loop workflows with escalation
+9. **Event** - Immutable audit events with hash chaining
+
+See: `core/models/` for implementation
+
+#### 🔐 Authentication & Authorization (Phase 2)
+- **RBAC System**: 4 roles (Admin, Operator, Developer, Auditor, Approver)
+- **Granular Permissions**: 10+ permission types
+- **API Key Management**: Generate, rotate, revoke
+- **OIDC/SSO Integration**: Auth0, Okta, Azure AD, Google Workspace
+- **User Lifecycle**: Create, update, suspend, delete
+- **Identity Tracking**: Complete user attribution for all actions
+
+See: `auth/` directory, `docs/rbac-guide.md`
+
+#### 📋 Declarative Policy Engine (Phases 1-2)
+- **No Code Required**: Pure YAML/JSON policies
+- **Business-Readable**: Compliance officers can review without developers
+- **Operators**: Field comparison, pattern matching, list operations
+- **Actions**: block, allow, escalate, audit, warn
+- **Nested Logic**: Complex AND/OR conditions
+- **Policy Bundles**: Pre-configured safe_mode, production, development, permissive
+
+See: `policy/dsl.py`, `policy/defaults.py`, `docs/policy-spec.md`
+
+#### 🔍 Compliance Modules (Phase 2 & 6)
+Pre-built compliance packs with regulatory references:
+- **GDPR**: Articles 5, 9, 17, 22, Chapter V
+- **HIPAA**: Privacy Rule, Security Rule, PHI protection
+- **SOC 2**: Trust Services Criteria (Security, Availability, Processing Integrity)
+- **PCI-DSS**: Requirements 3, 7, 10 (cardholder data protection)
+- **NIST AI RMF**: 4 core functions (GOVERN, MAP, MEASURE, MANAGE)
+- **EU AI Act**: Risk categorization (unacceptable, high, limited, minimal)
+
+**New: Compliance Evidence Generators** - Queryable proof instead of documents
+- Generate compliance reports with evidence
+- Export certificates (HTML, JSON)
+- Query specific requirements
+- Automated compliance reporting
+
+See: `policy/compliance/`, `docs/compliance-guide.md`
+
+#### ✅ Human-in-the-Loop Workflows (Phases 2 & 4)
+- **Multi-Level Approvals**: L1 → L2 → L3 → L4 escalation
+- **Configurable Workflows**: Standard, high-risk, critical
+- **Timeout Handling**: Auto-escalate, reject, or approve
+- **Decision Rationale**: Mandatory reasoning for compliance
+- **Permanent History**: All decisions stored forever
+- **Escalation Rules**: Based on timeout, risk level, rejection count
+
+See: `approval/`, gateway routes `/approvals/*`
+
+#### 🔒 Immutable Audit Trail (Phase 1)
+- **Hash Chaining**: Every entry linked to previous
+- **HMAC Signatures**: Cryptographically verified
+- **Tamper Detection**: Mathematically provable integrity
+- **Append-Only**: Cannot modify or delete
+- **Chain of Custody**: Complete request timelines
+- **Decision Replay**: Click any event to see full context
+- **Compliance Exports**: Subpoena-ready, legally defensible
+
+See: `observability/audit_trail.py`, `observability/immutable_audit.py`
+
+#### 📊 Executive Dashboard (Phase 3)
+Real-time observability with auto-refresh:
+- **Live Traffic**: Requests/min, latency (avg & P95), active users/agents
+- **Policy Hits**: Blocked vs Allowed breakdown with percentages
+- **High-Risk Alerts**: Critical/High/Medium risk event feed
+- **Decision Replay**: Click any event for complete timeline (killer feature)
+- **Org-Wide AI Map**: Team usage, model distribution, risk heatmap
+- **Usage Trends**: 7-day historical charts
+- **Kill Switch Status**: Emergency control visibility
+
+See: `dashboard/`, `observability/analytics.py`
+
+#### 🛑 Kill Switch (Phase 1)
+Emergency shutdown controls:
+- **Global Kill Switch**: Stop all AI operations instantly
+- **Agent-Scoped**: Disable specific agents
+- **Reason Tracking**: All activations logged with rationale
+- **Status API**: Check kill switch state
+- **Fail-Closed**: Blocks all requests when active
+
+See: `kill_switch/`, gateway routes `/kill-switch/*`
+
+#### 🔌 Plugin System (Phase 4)
+Extend without touching core code:
+- **6 Plugin Types**: Policy evaluators, risk engines, risk scorers, lifecycle hooks, compliance modules, data sanitizers
+- **8 Lifecycle Hooks**: pre_request, pre_execute, post_decision, post_execute, on_error, on_block, on_escalate, on_incident
+- **Dynamic Loading**: Auto-discovery from directories
+- **Example Plugins**: Risk engines, evaluators, hooks
+
+See: `policy/plugins.py`, `policy/plugin_loader.py`, `docs/plugin-development.md`, `examples/plugins/`
+
+#### 💻 SDKs & CLI (Phases 4 & 5)
+- **Python SDK**: Full-featured client with helpful exceptions
+- **TypeScript SDK**: Type-safe with IntelliSense support
+- **CLI Tool**: `acp` command with full feature parity
+- **Error Messages**: Clear guidance on what/why/how to fix
+- **Examples**: hello_governance.py, sdk_walkthrough.py
+
+See: `sdk/python/`, `sdk/typescript/`, `cli/acp.py`, `docs/cli-guide.md`
+
+#### 🏗️ Infrastructure as Code (Phase 4)
+- **Terraform-Style Config**: Declarative YAML/JSON
+- **Variable Substitution**: Reusable configurations
+- **Resource Blocks**: Agents, policies, compliance
+- **Plan & Apply**: Preview before deployment
+
+See: `core/config_loader.py`, `examples/configs/`
+
+#### 🚀 Deployment Ready
+- **Docker**: Multi-stage builds, optimized images
+- **Kubernetes**: Complete manifests (deployment, service, configmap, HPA, ingress)
+- **Helm Charts**: Parameterized deployments
+- **CI/CD**: GitHub Actions workflows
+- **Health Checks**: Liveness and readiness probes
+
+See: `deployments/`, `Dockerfile`, `.github/workflows/`
+
+---
+
+## 📖 Documentation
+
+### Getting Started
+- [GETTING_STARTED.md](GETTING_STARTED.md) - First steps with the platform
+- [QUICKSTART.md](QUICKSTART.md) - Quick reference guide
+- [PLATFORM_QUICKSTART.md](PLATFORM_QUICKSTART.md) - Platform overview
+
+### Core Documentation
+- [docs/architecture.md](docs/architecture.md) - System design and philosophy
+- [docs/policy-spec.md](docs/policy-spec.md) - Policy language reference
+- [docs/threat-model.md](docs/threat-model.md) - Security considerations
+- [docs/demo-walkthrough.md](docs/demo-walkthrough.md) - Step-by-step examples
+
+### Adoption Guides
+- [docs/deployment-guide.md](docs/deployment-guide.md) - Kubernetes and Helm
+- [docs/rbac-guide.md](docs/rbac-guide.md) - Access control setup
+- [docs/compliance-guide.md](docs/compliance-guide.md) - Regulatory standards
+- [docs/identity-and-observability.md](docs/identity-and-observability.md) - Phase 2 & 3 features
+
+### Developer Guides
+- [docs/plugin-development.md](docs/plugin-development.md) - Creating custom plugins
+- [docs/cli-guide.md](docs/cli-guide.md) - Command-line interface
+- [sdk/README.md](sdk/README.md) - Python and TypeScript SDKs
+- [control_plane/policy/INTEGRATION_GUIDE.md](control_plane/policy/INTEGRATION_GUIDE.md) - Integration patterns
+
+### Phase Documentation
+- [PHASE_1_COMPLETE.md](PHASE_1_COMPLETE.md) - Foundation implementation
+- [docs/PHASE_2_COMPLETE.md](docs/PHASE_2_COMPLETE.md) - Trust & Compliance
+- [PHASE_3_COMPLETE.md](PHASE_3_COMPLETE.md) - Observability & UX
+- [PHASE_4_COMPLETE.md](PHASE_4_COMPLETE.md) - Extensibility ecosystem
+
+---
+
+## 📚 Examples & Demos
+
+### Getting Started Examples
+
+**Hello Governance** - The canonical 5-minute example:
+```bash
+python examples/hello_governance.py
+```
+Shows: Agent registration, policy enforcement, audit trails, error handling
+
+**Complete SDK Walkthrough** - End-to-end feature tour:
+```bash
+python examples/sdk_walkthrough.py
+```
+Demonstrates: Registration, execution, policy blocking, approval workflows, audit queries, kill switch
+
+### Demo Scripts
+
+Located in `demo/` directory:
+
+- **platform_demo.py** - Complete platform capabilities demonstration
+- **production_features.py** - Production-ready features showcase
+- **register_agent.py** - Simple agent registration
+- **run_normal.py** - Normal execution flow
+- **trigger_violation.py** - Policy violation examples
+- **kill_agent.py** - Kill switch demonstration
+
+### Plugin Examples
+
+Located in `examples/plugins/`:
+
+- **risk_engine_example.py** - Custom risk assessment engine
+- **evaluator_example.py** - Custom policy evaluators
+- **hooks_example.py** - Lifecycle hook implementations
+
+### Configuration Examples
+
+Located in `examples/configs/`:
+
+- **agents.yaml** - Terraform-style agent configuration
+
+### Test Scripts
+
+Located in `scripts/`:
+
+- **populate_test_data.py** - Generate test data for development
+- **seed_demo_data.py** - Seed demo data for dashboard
+- **reset_env.py** - Reset environment state
+
+---
+
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -774,6 +1167,32 @@ Contributions welcome. This is platform infrastructure for AI governance.
 - [x] **SDK Expansion** - TypeScript/JavaScript SDK, CLI tool
 - [x] **Terraform Config** - Declarative infrastructure-as-code
 - [x] **Plugin Ecosystem** - Examples, documentation, testing
+
+### ✅ Phases 4-7: The "Salesforce Moment" (Complete)
+
+**Phase 4: Human-in-the-Loop That Actually Slows Things Down (On Purpose)**
+- [x] **Approval Workflows** - Explicit "pause and escalate" triggers
+- [x] **Decision Permanence** - Every approval decision stored forever
+- [x] **Compliance-Grade Rationale** - Required reasoning for all decisions
+- [x] **Escalation Paths** - Multi-level approval chains with timeout handling
+
+**Phase 5: Developer Ergonomics (The Salesforce Trapdoor)**
+- [x] **Hello Governance Example** - Canonical end-to-end example in under 50 lines
+- [x] **Helpful Error Messages** - Clear guidance on what happened, why, and how to fix
+- [x] **SDK Walkthrough** - Complete feature demonstration with examples
+- [x] **"Safety for Free"** - Governance that doesn't feel like friction
+
+**Phase 6: Compliance as Executable Proof**
+- [x] **Evidence Generators** - Turn compliance into queryable proof
+- [x] **Compliance Reports** - Generate reports with evidence for GDPR, HIPAA, SOC2, PCI-DSS
+- [x] **Certificate Exports** - HTML/JSON compliance certificates
+- [x] **Audit Trail Queries** - Query specific compliance evidence by standard and requirement
+
+**Phase 7: Opinionated Defaults (This Is How You Win the Category)**
+- [x] **Policy Bundles** - Pre-configured: safe_mode, production, development, permissive
+- [x] **Recommended Enforcement** - Intelligent defaults based on environment and risk
+- [x] **Configuration Wizard** - Interactive setup with best practices
+- [x] **"Safe Mode" Presets** - Maximum safety for production out of the box
 
 ### V2: Production Scale
 - [ ] Persistent storage (PostgreSQL for audit, Redis for state)
