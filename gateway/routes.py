@@ -1008,3 +1008,194 @@ async def validate_compliance(request: ComplianceValidationRequest):
     except Exception as e:
         logger.error(f"Compliance validation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Phase 3: Human-Centric Observability Endpoints
+# ============================================================================
+
+@router.get("/api/decisions/{execution_id}/why-blocked")
+async def why_was_blocked(execution_id: str):
+    """
+    Answer: Why was this request blocked?
+    
+    Human-centric query that explains why a specific request was blocked.
+    """
+    try:
+        # Get decision store from executor
+        if not hasattr(executor, 'decision_store') or not executor.decision_store:
+            raise HTTPException(
+                status_code=503,
+                detail="Decision record store not available"
+            )
+        
+        result = executor.decision_store.why_blocked(execution_id)
+        
+        if not result.get("found"):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No decision record found for execution {execution_id}"
+            )
+        
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to query why blocked: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/decisions/{execution_id}/who-approved")
+async def who_approved_this(execution_id: str):
+    """
+    Answer: Who approved this request?
+    
+    Human-centric query that shows who approved a request and when.
+    """
+    try:
+        if not hasattr(executor, 'decision_store') or not executor.decision_store:
+            raise HTTPException(
+                status_code=503,
+                detail="Decision record store not available"
+            )
+        
+        result = executor.decision_store.who_approved(execution_id)
+        
+        if not result.get("found"):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No decision record found for execution {execution_id}"
+            )
+        
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to query who approved: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/decisions/{execution_id}/which-policy")
+async def which_policy_fired(execution_id: str):
+    """
+    Answer: Which policy fired for this request?
+    
+    Human-centric query that shows which policy made the decision and why.
+    """
+    try:
+        if not hasattr(executor, 'decision_store') or not executor.decision_store:
+            raise HTTPException(
+                status_code=503,
+                detail="Decision record store not available"
+            )
+        
+        result = executor.decision_store.which_policy_fired(execution_id)
+        
+        if not result.get("found"):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No decision record found for execution {execution_id}"
+            )
+        
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to query which policy: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/decisions/{execution_id}/timeline")
+async def get_decision_timeline(execution_id: str):
+    """
+    Get complete decision timeline for a request.
+    
+    Shows every decision point from request initiation to completion.
+    """
+    try:
+        if not hasattr(executor, 'decision_store') or not executor.decision_store:
+            raise HTTPException(
+                status_code=503,
+                detail="Decision record store not available"
+            )
+        
+        result = executor.decision_store.get_timeline(execution_id)
+        
+        if not result.get("found"):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No decision record found for execution {execution_id}"
+            )
+        
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get timeline: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/decisions/query")
+async def query_decisions(
+    decision: Optional[str] = None,
+    policy_id: Optional[str] = None,
+    requester_id: Optional[str] = None,
+    approver_id: Optional[str] = None,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
+    limit: int = 100
+):
+    """
+    Query decision records with filters.
+    
+    Supports filtering by decision type, policy, requester, approver, and time range.
+    """
+    try:
+        if not hasattr(executor, 'decision_store') or not executor.decision_store:
+            raise HTTPException(
+                status_code=503,
+                detail="Decision record store not available"
+            )
+        
+        records = executor.decision_store.query_decisions(
+            decision=decision,
+            policy_id=policy_id,
+            requester_id=requester_id,
+            approver_id=approver_id,
+            start_time=start_time,
+            end_time=end_time,
+            limit=limit
+        )
+        
+        return {
+            "total": len(records),
+            "records": [r.dict() for r in records]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to query decisions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/decisions/statistics")
+async def get_decision_statistics():
+    """
+    Get statistics about decision records.
+    
+    Provides aggregate statistics for observability and reporting.
+    """
+    try:
+        if not hasattr(executor, 'decision_store') or not executor.decision_store:
+            raise HTTPException(
+                status_code=503,
+                detail="Decision record store not available"
+            )
+        
+        stats = executor.decision_store.get_statistics()
+        return stats
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get statistics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
