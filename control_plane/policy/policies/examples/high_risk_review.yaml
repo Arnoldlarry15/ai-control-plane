@@ -1,0 +1,21 @@
+# High Risk Model Review
+#
+# Purpose: Require human review for high-risk AI model operations
+#
+# Use Case: Risk management, compliance, quality assurance
+
+id: "high_risk_review"
+version: "1.0.0"
+description: "High-risk operations require human review"
+
+scope:
+  resource_type:
+    - "model"
+    - "agent"
+
+conditions:
+  tags:
+    - "high-risk"
+
+effect: "REVIEW"
+priority: 150

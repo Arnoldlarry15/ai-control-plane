@@ -1,0 +1,20 @@
+# Production Banned Content Denial
+#
+# Purpose: Immediately block any requests with banned tags in production
+#
+# Use Case: Security controls, content filtering, compliance restrictions
+
+id: "prod_banned_deny"
+version: "1.0.0"
+description: "Block banned content in production immediately"
+
+scope:
+  environment:
+    - "production"
+
+conditions:
+  tags:
+    - "banned"
+
+effect: "DENY"
+priority: 200
