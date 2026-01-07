@@ -26,6 +26,7 @@ class AuditEntry:
     Single audit log entry.
     
     Immutable once created. Chained via previous_hash for integrity.
+    Enhanced with identity metadata for Phase 2.
     """
     entry_id: str
     timestamp: str
@@ -38,6 +39,9 @@ class AuditEntry:
     details: Dict[str, Any]
     previous_hash: Optional[str]
     entry_hash: str
+    
+    # Phase 2: Identity metadata
+    identity_metadata: Optional[Dict[str, Any]] = None  # WHO did this
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
@@ -66,6 +70,7 @@ class AuditEntry:
             "status": self.status,
             "details": self.details,
             "previous_hash": self.previous_hash,
+            "identity_metadata": self.identity_metadata,
         }
         
         # Deterministic JSON serialization
@@ -98,6 +103,7 @@ class AuditTrail:
         execution_id: Optional[str] = None,
         agent_id: Optional[str] = None,
         user: Optional[str] = None,
+        identity_metadata: Optional[Dict[str, Any]] = None,
     ) -> AuditEntry:
         """
         Append entry to audit trail.
@@ -110,6 +116,7 @@ class AuditTrail:
             execution_id: Optional execution ID
             agent_id: Optional agent ID
             user: Optional user ID
+            identity_metadata: Optional identity metadata (WHO did this)
             
         Returns:
             Created audit entry
@@ -131,6 +138,7 @@ class AuditTrail:
             "status": status,
             "details": details,
             "previous_hash": self._last_hash,
+            "identity_metadata": identity_metadata,
             "entry_hash": "",  # Computed next
         }
         
