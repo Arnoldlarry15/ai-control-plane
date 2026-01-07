@@ -10,11 +10,14 @@ Enhanced with:
 - Cryptographic audit trail with chain-of-custody
 - Policy explainability (transparent decision-making)
 - Decision timeline replay capability
+- Phase 2: Identity metadata tracking
+- Phase 3: Decision records for human-centric observability
 """
 
 import logging
 import time
 import uuid
+from datetime import datetime
 from typing import Dict, Any, Optional, List
 
 from gateway.errors import (
@@ -108,6 +111,15 @@ class Executor:
                 logger.warning(f"Could not initialize policy explainer: {e}")
                 self.policy_explainer = None
         
+        # Phase 3: Initialize decision record store
+        try:
+            from observability.decision_records import DecisionRecordStore
+            self.decision_store = DecisionRecordStore()
+            logger.info("Decision record store initialized in executor")
+        except Exception as e:
+            logger.warning(f"Could not initialize decision record store: {e}")
+            self.decision_store = None
+        
         logger.info("Executor initialized. The choke point is ready.")
     
     def _execute_hooks(self, stage: str, context: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -139,9 +151,10 @@ class Executor:
         execution_id: Optional[str] = None,
         agent_id: Optional[str] = None,
         user: Optional[str] = None,
+        identity_metadata: Optional[Dict[str, Any]] = None,
     ):
         """
-        Log to cryptographic audit trail.
+        Log to cryptographic audit trail with identity metadata.
         
         Args:
             event_type: Type of event
@@ -151,6 +164,7 @@ class Executor:
             execution_id: Optional execution ID
             agent_id: Optional agent ID
             user: Optional user ID
+            identity_metadata: Optional identity metadata (WHO did this)
         """
         if not self.audit_trail:
             return
@@ -164,6 +178,7 @@ class Executor:
                 execution_id=execution_id,
                 agent_id=agent_id,
                 user=user,
+                identity_metadata=identity_metadata,
             )
         except Exception as e:
             logger.error(f"Audit trail logging failed: {e}")
@@ -208,6 +223,91 @@ class Executor:
                 "explanation": f"Error generating explanation: {e}"
             }
     
+    def _create_decision_record(
+        self,
+        execution_id: str,
+        agent_id: str,
+        decision: str,
+        reason: str,
+        policy_id: Optional[str],
+        policy_name: Optional[str],
+        identity_metadata: Optional[Dict[str, Any]],
+        status: str,
+        context: Dict[str, Any],
+        request_timestamp: str,
+        decision_timestamp: str,
+        completion_timestamp: Optional[str] = None,
+        approver_metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """
+        Create a decision record for Phase 3 observability.
+        
+        Args:
+            execution_id: Execution identifier
+            agent_id: Agent identifier
+            decision: Decision made
+            reason: Reason for decision
+            policy_id: Policy identifier
+            policy_name: Policy name
+            identity_metadata: Identity metadata (WHO)
+            status: Request status
+            context: Request context
+            request_timestamp: When request was initiated
+            decision_timestamp: When decision was made
+            completion_timestamp: When request completed
+            approver_metadata: Approver identity (if escalated)
+        """
+        if not self.decision_store:
+            return
+        
+        try:
+            from observability.events import DecisionRecord
+            
+            # Extract identity information
+            requester_id = identity_metadata.get("user_id", "unknown") if identity_metadata else "unknown"
+            requester_name = identity_metadata.get("user_name") if identity_metadata else None
+            requester_role = identity_metadata.get("user_role", "unknown") if identity_metadata else "unknown"
+            
+            # Extract approver information
+            approver_id = None
+            approver_name = None
+            approver_role = None
+            if approver_metadata:
+                approver_id = approver_metadata.get("user_id")
+                approver_name = approver_metadata.get("user_name")
+                approver_role = approver_metadata.get("user_role")
+            
+            # Get correlation ID
+            correlation_id = context.get("correlation_id") or context.get("request_id") or execution_id
+            
+            record = DecisionRecord(
+                execution_id=execution_id,
+                correlation_id=correlation_id,
+                request_timestamp=request_timestamp,
+                decision_timestamp=decision_timestamp,
+                completion_timestamp=completion_timestamp,
+                requester_id=requester_id,
+                requester_name=requester_name,
+                requester_role=requester_role,
+                approver_id=approver_id,
+                approver_name=approver_name,
+                approver_role=approver_role,
+                decision=decision,
+                reason=reason,
+                policy_id=policy_id,
+                policy_name=policy_name,
+                policies_evaluated=[],
+                agent_id=agent_id,
+                status=status,
+                context=context,
+            )
+            
+            self.decision_store.store_decision(record)
+            logger.debug(f"Decision record created: {execution_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to create decision record: {e}")
+    
     async def execute(
         self,
         agent_id: str,
@@ -244,10 +344,21 @@ class Executor:
         # Generate unique execution ID
         execution_id = str(uuid.uuid4())
         start_time = time.time()
+        request_timestamp = datetime.utcnow().isoformat() + "Z"
+        
+        # Phase 2: Extract identity metadata from context
+        identity_metadata = context.get("identity_metadata")
+        if not identity_metadata and user:
+            # Create basic identity metadata if not provided
+            identity_metadata = {
+                "user_id": user,
+                "user_role": "unknown",
+                "timestamp": request_timestamp,
+            }
         
         logger.info(f"[{execution_id}] Starting execution: agent={agent_id} user={user}")
         
-        # Log execution start to audit trail
+        # Log execution start to audit trail with identity
         self._log_to_audit_trail(
             event_type="execution_started",
             action="start_execution",
@@ -260,6 +371,7 @@ class Executor:
             execution_id=execution_id,
             agent_id=agent_id,
             user=user,
+            identity_metadata=identity_metadata,
         )
         
         try:
@@ -297,6 +409,7 @@ class Executor:
             )
             
             # Log policy decision to audit trail
+            decision_timestamp = datetime.utcnow().isoformat() + "Z"
             self._log_to_audit_trail(
                 event_type="policy_evaluated",
                 action="evaluate_policies",
@@ -309,6 +422,7 @@ class Executor:
                 execution_id=execution_id,
                 agent_id=agent_id,
                 user=user,
+                identity_metadata=identity_metadata,
             )
             
             # STEP 4: Handle policy decision
@@ -316,15 +430,45 @@ class Executor:
                 # Execute on_block hooks
                 self._execute_hooks("on_block", {**enhanced_context, "policy_decision": policy_decision})
                 
+                # Phase 3: Create decision record for blocked request
+                self._create_decision_record(
+                    execution_id=execution_id,
+                    agent_id=agent_id,
+                    decision="block",
+                    reason=policy_decision.get("reason", "Policy violation"),
+                    policy_id=policy_decision.get("policy_id"),
+                    policy_name=policy_decision.get("policy_name"),
+                    identity_metadata=identity_metadata,
+                    status="blocked",
+                    context=enhanced_context,
+                    request_timestamp=request_timestamp,
+                    decision_timestamp=decision_timestamp,
+                )
+                
                 return self._handle_block(
-                    execution_id, agent_id, prompt, policy_decision, start_time, user, explanation
+                    execution_id, agent_id, prompt, policy_decision, start_time, user, explanation, identity_metadata
                 )
             elif policy_decision["action"] == "escalate":
                 # Execute on_escalate hooks
                 self._execute_hooks("on_escalate", {**enhanced_context, "policy_decision": policy_decision})
                 
+                # Phase 3: Create decision record for escalated request
+                self._create_decision_record(
+                    execution_id=execution_id,
+                    agent_id=agent_id,
+                    decision="escalate",
+                    reason=policy_decision.get("reason", "Requires approval"),
+                    policy_id=policy_decision.get("policy_id"),
+                    policy_name=policy_decision.get("policy_name"),
+                    identity_metadata=identity_metadata,
+                    status="pending_approval",
+                    context=enhanced_context,
+                    request_timestamp=request_timestamp,
+                    decision_timestamp=decision_timestamp,
+                )
+                
                 return self._handle_escalate(
-                    execution_id, agent_id, prompt, policy_decision, start_time, user, explanation
+                    execution_id, agent_id, prompt, policy_decision, start_time, user, explanation, identity_metadata
                 )
             
             # STEP 5: Execute the AI call (if allowed)
@@ -338,6 +482,8 @@ class Executor:
             
             # STEP 6: Log successful execution
             latency_ms = int((time.time() - start_time) * 1000)
+            completion_timestamp = datetime.utcnow().isoformat() + "Z"
+            
             self._log_execution(
                 execution_id=execution_id,
                 agent_id=agent_id,
@@ -361,6 +507,23 @@ class Executor:
                 execution_id=execution_id,
                 agent_id=agent_id,
                 user=user,
+                identity_metadata=identity_metadata,
+            )
+            
+            # Phase 3: Create decision record for successful execution
+            self._create_decision_record(
+                execution_id=execution_id,
+                agent_id=agent_id,
+                decision="allow",
+                reason=policy_decision.get("reason", "Policy allowed"),
+                policy_id=policy_decision.get("policy_id"),
+                policy_name=policy_decision.get("policy_name"),
+                identity_metadata=identity_metadata,
+                status="success",
+                context=enhanced_context,
+                request_timestamp=request_timestamp,
+                decision_timestamp=decision_timestamp,
+                completion_timestamp=completion_timestamp,
             )
             
             logger.info(f"[{execution_id}] Execution successful: latency={latency_ms}ms")
@@ -514,6 +677,7 @@ class Executor:
         start_time: float,
         user: Optional[str],
         explanation: Optional[Dict[str, Any]] = None,
+        identity_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Handle blocked execution."""
         latency_ms = int((time.time() - start_time) * 1000)
@@ -535,7 +699,7 @@ class Executor:
             user=user,
         )
         
-        # Log to audit trail
+        # Log to audit trail with identity
         self._log_to_audit_trail(
             event_type="execution_blocked",
             action="block_execution",
@@ -548,6 +712,7 @@ class Executor:
             execution_id=execution_id,
             agent_id=agent_id,
             user=user,
+            identity_metadata=identity_metadata,
         )
         
         raise PolicyViolationError(
@@ -565,6 +730,7 @@ class Executor:
         start_time: float,
         user: Optional[str],
         explanation: Optional[Dict[str, Any]] = None,
+        identity_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Handle escalated execution (requires approval)."""
         latency_ms = int((time.time() - start_time) * 1000)
@@ -584,7 +750,7 @@ class Executor:
             user=user,
         )
         
-        # Log to audit trail
+        # Log to audit trail with identity
         self._log_to_audit_trail(
             event_type="execution_escalated",
             action="escalate_execution",
@@ -596,6 +762,7 @@ class Executor:
             execution_id=execution_id,
             agent_id=agent_id,
             user=user,
+            identity_metadata=identity_metadata,
         )
         
         # TODO: Queue for approval (V1: just return pending status)
