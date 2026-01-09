@@ -195,4 +195,4 @@ Coming soon:
 
 ## License
 
-MIT
+Apache-2.0
