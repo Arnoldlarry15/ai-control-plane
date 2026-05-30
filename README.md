@@ -2,13 +2,6 @@
 
 A universal governance and audit format for all AI systems, models, and agents.
 
-Absolutely. This is the document that decides whether people “get it” in 30 seconds or bounce forever.
-
-A good README here is not documentation. It’s a declaration of a new layer in the stack.
-
-I’ll keep it clean, minimal, and adoption-focused.
-
-
 ---
 
 ## CONTROL PLANE STANDARD (CPS)
