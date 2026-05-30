@@ -1,0 +1,28 @@
+{
+  "name": "ai-control-plane",
+  "version": "1.0.0",
+  "description": "A universal governance and audit format for all AI systems, models, and agents",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "test": "node --test --import tsx test/**/*.test.ts",
+    "build": "tsc -p tsconfig.json",
+    "demo": "node --import tsx examples/demo.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arnoldlarry15/ai-control-plane.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Arnoldlarry15/ai-control-plane/issues"
+  },
+  "homepage": "https://github.com/Arnoldlarry15/ai-control-plane#readme",
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}
