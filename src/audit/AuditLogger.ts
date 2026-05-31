@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
 import { appendFileSync } from "node:fs";
-import type { AuditEvent } from "../core/types.js";
+import type { AuditEvent, CodeArtifactAuditEvent } from "../core/types.js";
 
 export class AuditLogger {
   constructor(private readonly filePath = "audit-log.jsonl") {}
 
-  log(event: AuditEvent): void {
+  log(event: AuditEvent | CodeArtifactAuditEvent): void {
     const enriched = {
       ...event,
       timestamp: new Date().toISOString()

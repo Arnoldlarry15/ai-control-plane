@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+echo "Running pre-commit checks..."
+npm test
+if [ $? -ne 0 ]; then
+  echo "Pre-commit: tests failed. Commit aborted."
+  exit 1
+fi
+echo "Pre-commit checks passed."

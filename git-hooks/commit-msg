@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+MSG_FILE="$1"
+MSG="$(cat "$MSG_FILE")"
+# If staged code files are present, require a CPS artifact tag in the message
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js|tsx)$' || true)
+if [ -n "$STAGED" ]; then
+  if ! echo "$MSG" | grep -q '\[CPS:artifact='; then
+    echo "Commit message must include CPS artifact tag when committing code files, e.g. [CPS:artifact=a1b2c3]"
+    exit 1
+  fi
+fi

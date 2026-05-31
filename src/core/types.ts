@@ -19,9 +19,27 @@ export interface AuditEvent {
   orgId: string;
   action: string;
   model?: string;
+  provider?: string;
   promptHash: string;
   policyDecision: string;
   riskScore: number;
+}
+
+export type { CodeArtifact } from "../provenance/types.js";
+
+export interface CodeArtifactAuditEvent {
+  eventId: string;
+  timestamp?: string;
+  event_type: "code_generation" | "code_edit" | "code_merge";
+  artifact_id: string;
+  diff_hash: string;
+  actor: {
+    type: "human" | "agent";
+    id: string;
+  };
+  model: string;
+  provider: string;
+  prompt_hash: string;
 }
 
 export interface ExecuteRequest {
@@ -38,4 +56,5 @@ export interface ExecutionBlocked {
 export interface ExecutionSuccess {
   status: "success";
   response: string;
+  provenance?: import("../provenance/types.js").CodeArtifact;
 }
