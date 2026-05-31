@@ -1,6 +1,6 @@
 {
   "name": "ai-control-plane",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A universal governance and audit format for all AI systems, models, and agents",
   "main": "dist/src/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "bugs": {
     "url": "https://github.com/Arnoldlarry15/ai-control-plane/issues"

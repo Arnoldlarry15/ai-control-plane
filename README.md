@@ -76,15 +76,11 @@ CPS standardizes all four.
 
 This repository contains a TypeScript reference implementation:
 
-middleware control plane runtime
-
-policy engine
-
-trust scoring system
-
-audit logger
-
-provider wrapper system
+- middleware control plane runtime
+- policy engine
+- trust scoring system
+- audit logger
+- provider wrapper system
 
 
 
@@ -94,7 +90,9 @@ provider wrapper system
 
 Install (local dev version)
 
-npm install control-plane
+```bash
+npm install ai-control-plane@0.1.0
+```
 
 
 
@@ -102,7 +100,8 @@ npm install control-plane
 
 ## Basic usage
 
-import { ControlPlane, MockProvider } from "control-plane";
+```ts
+import { ControlPlane, MockProvider } from "ai-control-plane";
 
 const cp = new ControlPlane(new MockProvider());
 
@@ -113,6 +112,7 @@ const result = await cp.execute({
 });
 
 console.log(result);
+```
 
 
 ---
@@ -144,6 +144,7 @@ Every AI request automatically:
 
 ## Example audit event
 
+```json
 {
   "eventId": "uuid",
   "timestamp": "2026-05-30T00:00:00Z",
@@ -154,12 +155,14 @@ Every AI request automatically:
   "policyDecision": "allowed",
   "riskScore": 0.21
 }
+```
 
 
 ---
 
 ## Policy example
 
+```json
 {
   "policy_id": "default_policy",
   "rules": [
@@ -172,12 +175,14 @@ Every AI request automatically:
     }
   ]
 }
+```
 
 
 ---
 
 ## Trust scoring example
 
+```json
 {
   "entity": {
     "type": "agent",
@@ -190,6 +195,7 @@ Every AI request automatically:
     "reliability": 0.88
   }
 }
+```
 
 
 ---
@@ -218,7 +224,6 @@ Every agent must be attributable.
 
 Behavior is governed continuously, not statically.
 
-
 ---
 
 ## Architecture overview
@@ -230,7 +235,6 @@ CPS Middleware Layer
 Policy Engine → Trust Engine → Audit Logger
     ↓
 AI Provider (OpenAI, Anthropic, Local, etc.)
-
 
 ---
 
@@ -250,46 +254,30 @@ Autonomous agent frameworks
 
 AI compliance systems
 
-
-
 ---
 
 ## Roadmap
 
-**v0.1 (current)**
+### v0.1.0 (current)
+- TypeScript reference implementation
+- Basic policy engine
+- JSONL audit logging
+- Trust scoring stub
 
-TypeScript reference implementation
+**v1.0.0**
 
-Basic policy engine
+- Plugin system
+- OpenAI / Anthropic adapters
+- OpenTelemetry exporter
+- Streaming support
+- CLI tooling
 
-JSONL audit logging
+**v2.0.0**
 
-Trust scoring stub
-
-
-**v1.0**
-
-Plugin system
-
-OpenAI / Anthropic adapters
-
-OpenTelemetry exporter
-
-Streaming support
-
-CLI tooling
-
-
-**v2.0**
-
-Distributed audit layer
-
-Cross-org agent identity system
-
-Policy DSL compiler
-
-Federated governance model
-
+- Distributed audit layer
+- Cross-org agent identity system
+- Policy DSL compiler
+- Federated governance model
 
 ---
 
@@ -305,11 +293,9 @@ A replacement for LangChain
 
 A proprietary AI platform
 
-
 **It is strictly:**
 
 > a control, audit, and governance layer for AI systems
-
 
 ---
 
@@ -327,9 +313,7 @@ who can audit it
 
 who can trust it
 
-
 CPS defines that layer.
-
 
 ---
 
@@ -349,16 +333,13 @@ provider adapters
 
 governance extensions
 
-
-
 ---
 
 ## License
 
-This project is licensed under the MIT License.
+The Control Plane Standard (CPS) reference materials and reference implementations are licensed under the MIT License.
 
-See the LICENSE file for details.
-
+See the LICENSE file for full details.
 
 ---
 
