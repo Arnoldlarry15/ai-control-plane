@@ -369,5 +369,3 @@ If you are building AI systems in production today, you already need this layer.
 If you are building AI systems in the future, you will be required to have it.
 
 CPS is the attempt to make that layer universal, interoperable, and open.
-
-```
