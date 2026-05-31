@@ -1,17 +1,14 @@
 # AI Control Plane
 
-A universal governance and audit format for all AI systems, models, and agents.
-
----
 
 ## CONTROL PLANE STANDARD (CPS)
 
-A universal governance, audit, and control layer for AI systems
+A universal governance, audit, and control layer for AI systems, models, and agents
 
 
 ---
 
-**What this is**
+## What this is
 
 AI systems today are powerful, but invisible in operation.
 
@@ -28,7 +25,7 @@ Who triggered it?
 Can we prove it to an auditor?
 
 
-CPS (Control Plane Standard) defines a universal runtime layer that makes AI systems observable, enforceable, and auditable by default.
+**CPS (Control Plane Standard) defines a universal runtime layer that makes AI systems observable, enforceable, and auditable by default.**
 
 It is not a model framework.
 
@@ -39,7 +36,7 @@ It is a governance layer for machine intelligence.
 
 ---
 
-**Why this exists**
+## Why this exists
 
 Modern AI systems suffer from:
 
@@ -61,7 +58,7 @@ CPS replaces that fragmentation with a shared foundation.
 
 ---
 
-**Core idea**
+## Core idea
 
 Every AI system reduces to four primitives:
 
@@ -75,7 +72,7 @@ CPS standardizes all four.
 
 ---
 
-**Packages**
+## Packages
 
 This repository contains a TypeScript reference implementation:
 
@@ -93,7 +90,7 @@ provider wrapper system
 
 ---
 
-**Quick start**
+## Quick start
 
 Install (local dev version)
 
@@ -103,7 +100,7 @@ npm install control-plane
 
 ---
 
-**Basic usage**
+## Basic usage
 
 import { ControlPlane, MockProvider } from "control-plane";
 
@@ -120,7 +117,7 @@ console.log(result);
 
 ---
 
-**What happens when you use CPS""
+## What happens when you use CPS
 
 Every AI request automatically:
 
@@ -145,7 +142,7 @@ Every AI request automatically:
 
 ---
 
-*"Example audit event**
+## Example audit event
 
 {
   "eventId": "uuid",
@@ -161,7 +158,7 @@ Every AI request automatically:
 
 ---
 
-**Policy example**
+## Policy example
 
 {
   "policy_id": "default_policy",
@@ -179,7 +176,7 @@ Every AI request automatically:
 
 ---
 
-**Trust scoring example**
+## Trust scoring example
 
 {
   "entity": {
@@ -197,7 +194,7 @@ Every AI request automatically:
 
 ---
 
-**Design philosophy""
+## Design philosophy
 
 CPS is built on five principles:
 
@@ -224,7 +221,7 @@ Behavior is governed continuously, not statically.
 
 ---
 
-**Architecture overview**
+## Architecture overview
 
 Application
     ↓
@@ -237,7 +234,7 @@ AI Provider (OpenAI, Anthropic, Local, etc.)
 
 ---
 
-**Use cases**
+## Use cases
 
 CPS is designed for:
 
@@ -257,9 +254,9 @@ AI compliance systems
 
 ---
 
-**Roadmap**
+## Roadmap
 
-v0.1 (current)
+**v0.1 (current)**
 
 TypeScript reference implementation
 
@@ -270,7 +267,7 @@ JSONL audit logging
 Trust scoring stub
 
 
-v1.0
+**v1.0**
 
 Plugin system
 
@@ -283,7 +280,7 @@ Streaming support
 CLI tooling
 
 
-v2.0
+**v2.0**
 
 Distributed audit layer
 
@@ -296,7 +293,7 @@ Federated governance model
 
 ---
 
-**Non-goals**
+## Non-goals
 
 CPS is NOT:
 
@@ -316,7 +313,7 @@ A proprietary AI platform
 
 ---
 
-**Philosophy**
+## Philosophy
 
 We believe the future of AI will not be defined only by models.
 
@@ -336,7 +333,7 @@ CPS defines that layer.
 
 ---
 
-**Contributing**
+## Contributing
 
 This project is designed to become a shared standard.
 
@@ -356,14 +353,16 @@ governance extensions
 
 ---
 
-**License**
+## License
 
-Open standard. Implementation MIT or Apache 2.0 recommended.
+This project is licensed under the MIT License.
+
+See the LICENSE file for details.
 
 
 ---
 
-**Final note**
+## Final note
 
 If you are building AI systems in production today, you already need this layer.
 
@@ -371,27 +370,4 @@ If you are building AI systems in the future, you will be required to have it.
 
 CPS is the attempt to make that layer universal, interoperable, and open.
 
-
-## Minimal TypeScript reference implementation (v0.1)
-
-Every call flows through one middleware entrypoint:
-
-```ts
-await controlPlane.execute({ agentId, orgId, prompt });
-```
-
-Behavior:
-
-- intercepts every AI request
-- evaluates deterministic policy rules
-- logs append-only JSONL audit events
-- enforces allow/block decisions
-- returns provider response on success
-
-## Quick start
-
-```bash
-npm install
-npm test
-npm run demo
 ```
