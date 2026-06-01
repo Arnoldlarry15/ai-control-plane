@@ -4,7 +4,7 @@ import { PolicyEngine } from "../policy/PolicyEngine.js";
 import { TrustEngine } from "../trust/TrustEngine.js";
 import type { AIProvider } from "../providers/AIProvider.js";
 import type { ExecuteRequest, ExecutionBlocked, ExecutionSuccess } from "./types.js";
-import { ProvenanceTracker, looksLikeCode } from "../provenance/tracker.js";
+import { ProvenanceTracker, looksLikeCode, type ProvenanceMode } from "../provenance/tracker.js";
 import type { CodeArtifact } from "../provenance/types.js";
 
 export class ControlPlane {
@@ -13,19 +13,22 @@ export class ControlPlane {
   private readonly policy: PolicyEngine;
   private readonly trust: TrustEngine;
   private readonly provenance: ProvenanceTracker;
+  private readonly provenanceMode: ProvenanceMode;
 
   constructor(
     provider: AIProvider,
     audit = new AuditLogger(),
     policy?: PolicyEngine,
     trust?: TrustEngine,
-    provenance?: ProvenanceTracker
+    provenance?: ProvenanceTracker,
+    provenanceMode: ProvenanceMode = process.env.NODE_ENV === "production" ? "production" : "development"
   ) {
     this.provider = provider;
     this.audit = audit;
     this.policy = policy ?? new PolicyEngine();
     this.trust = trust ?? new TrustEngine();
-    this.provenance = provenance ?? new ProvenanceTracker();
+    this.provenanceMode = provenanceMode;
+    this.provenance = provenance ?? new ProvenanceTracker(undefined, { mode: provenanceMode });
   }
 
   async execute(req: ExecuteRequest): Promise<ExecutionBlocked | ExecutionSuccess> {
@@ -67,13 +70,24 @@ export class ControlPlane {
     let provenance: CodeArtifact | undefined;
 
     if (looksLikeCode(response)) {
-      provenance = this.provenance.trackAIOutput({
-        code: response,
-        language: "typescript",
-        model: this.provider.name,
-        provider: this.provider.type,
-        prompt: req.prompt
-      });
+      try {
+        provenance = this.provenance.trackAIOutput({
+          code: response,
+          language: "typescript",
+          model: this.provider.name,
+          provider: this.provider.type,
+          prompt: req.prompt
+        });
+      } catch (error) {
+        if (this.provenanceMode === "production") {
+          const msg = error instanceof Error ? error.message : "";
+          return {
+            status: "blocked",
+            reason: msg.startsWith("identity_required") ? "identity_required" : "provenance_required"
+          };
+        }
+        throw error;
+      }
 
       this.audit.log({
         eventId: randomUUID(),
