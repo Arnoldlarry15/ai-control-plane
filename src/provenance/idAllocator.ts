@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import { join } from "node:path";
+import { dirname } from "node:path";
 
-const DEFAULT_SEQ_FILE = process.env.PROV_ID_SEQ_FILE || "prov-id-seq.json";
+const DEFAULT_SEQ_FILE = process.env.PROV_ID_SEQ_FILE || ".cps-state/prov-id-seq.json";
 
 export function allocateId(kind: string): string {
   const year = new Date().getFullYear();
@@ -20,6 +20,7 @@ export function allocateId(kind: string): string {
   data[key] = data[key] || {};
   data[key][year] = (data[key][year] || 0) + 1;
   try {
+    fs.mkdirSync(dirname(seqFile), { recursive: true });
     fs.writeFileSync(seqFile, JSON.stringify(data, null, 2), "utf8");
   } catch {
     // best-effort persistence; ignore errors
@@ -36,6 +37,7 @@ export function nextForTesting(kind: string, year: number, seq: number) {
   const data: any = {};
   data[kind] = {};
   data[kind][year] = seq;
+  fs.mkdirSync(dirname(seqFile), { recursive: true });
   fs.writeFileSync(seqFile, JSON.stringify(data, null, 2), "utf8");
 }
 
