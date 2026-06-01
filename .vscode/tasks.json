@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Generate CPS Artifact",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "cps:new-artifact"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Create CPS Commit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "cps:commit"],
+      "problemMatcher": []
+    }
+  ]
+}

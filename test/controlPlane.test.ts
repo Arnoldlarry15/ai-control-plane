@@ -115,13 +115,14 @@ test("attaches a provenance artifact when the response looks like code", async (
 
   assert.equal(result.status, "success");
   if (result.status === "success") {
-    assert.ok(result.provenance);
-    assert.equal(result.provenance?.type, "ai_generated");
-    assert.equal(result.provenance?.source.model, "gpt-5.4-mini");
-    assert.equal(result.provenance?.source.provider, "openai");
-    assert.equal(result.provenance?.metadata.createdBy, "ai");
-    assert.equal(result.provenance?.content.code, "export function hello() { return 'world'; }");
-    assert.equal(result.provenance?.content.hash, sha256("export function hello() { return 'world'; }"));
+    const provenance = result.provenance;
+    assert.ok(provenance);
+    assert.equal(provenance.type, "ai_generated");
+    assert.equal(provenance.source?.model, "gpt-5.4-mini");
+    assert.equal(provenance.source?.provider, "openai");
+    assert.equal(provenance.metadata.createdBy, "ai");
+    assert.equal(provenance.content.code, "export function hello() { return 'world'; }");
+    assert.equal(provenance.content.hash, sha256("export function hello() { return 'world'; }"));
   }
 
   const lines = readFileSync(auditPath, "utf8").trim().split("\n").map((line: string) => JSON.parse(line));
@@ -144,9 +145,10 @@ test("creates artifacts through the provenance module", () => {
 
   assert.equal(artifact.type, "ai_generated");
   assert.equal(artifact.content.code, "export const x = 1;");
-  assert.equal(artifact.source.model, "gpt-5.4-mini");
-  assert.equal(artifact.source.provider, "openai");
-  assert.equal(artifact.source.promptHash, sha256("make a constant"));
+  assert.ok(artifact.source);
+  assert.equal(artifact.source?.model, "gpt-5.4-mini");
+  assert.equal(artifact.source?.provider, "openai");
+  assert.equal(artifact.source?.promptHash, sha256("make a constant"));
   assert.ok(artifact.actor?.id);
   assert.equal(isCanonicalIdentityId(artifact.actor?.id || "", "ai"), true);
 });

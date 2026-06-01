@@ -5,7 +5,22 @@ MSG="$(cat "$MSG_FILE")"
 STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js|tsx)$' || true)
 if [ -n "$STAGED" ]; then
   if ! echo "$MSG" | grep -q '\[CPS:artifact='; then
-    echo "Commit message must include CPS artifact tag when committing code files, e.g. [CPS:artifact=a1b2c3]"
+    echo "ERROR: Code changes require a CPS artifact tag."
+    echo ""
+    echo "Expected format:"
+    echo ""
+    echo "[CPS:artifact=PROV-2026-000002]"
+    echo ""
+    echo "Examples:"
+    echo ""
+    echo "feat(provenance): add actor validation [CPS:artifact=PROV-2026-000002]"
+    echo "fix(identity): enforce type matching [CPS:artifact=ID-2026-000014]"
+    echo ""
+    echo "Run:"
+    echo "npm run cps:new-artifact"
+    echo ""
+    echo "or use:"
+    echo "npm run cps:commit"
     exit 1
   fi
 fi

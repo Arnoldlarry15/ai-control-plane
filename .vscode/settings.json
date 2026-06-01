@@ -1,0 +1,4 @@
+{
+  "npm.packageManager": "npm",
+  "task.allowAutomaticTasks": "on"
+}

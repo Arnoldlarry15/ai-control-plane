@@ -108,6 +108,12 @@ Use a message format like:
 
 This applies whenever staged files include TypeScript or JavaScript source changes.
 
+For a guided workflow:
+
+- `npm run cps:new-artifact` prints the next artifact id and a suggested commit message.
+- `npm run cps:commit` prompts for a message, appends the next artifact tag, and runs `git commit`.
+- `git config alias.cps '!node scripts/new-artifact.js'` gives you a short alias that prints the next artifact id.
+
 
 
 ---

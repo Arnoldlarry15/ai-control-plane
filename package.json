@@ -8,7 +8,9 @@
     "build": "tsc -p tsconfig.json",
     "demo": "node --import tsx examples/demo.ts",
     "install-hooks": "git config core.hooksPath git-hooks",
-    "view:provenance": "tsx tools/viewProvenance.ts"
+    "view:provenance": "tsx tools/viewProvenance.ts",
+    "cps:new-artifact": "node scripts/new-artifact.js --verbose",
+    "cps:commit": "node scripts/cps-commit.js"
   },
   "repository": {
     "type": "git",

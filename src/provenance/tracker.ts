@@ -88,7 +88,8 @@ export class ProvenanceTracker {
         throw new Error("identity_required: identity store is mandatory in production mode");
       }
 
-      const actorId = artifact.actor?.id;
+      const actor = artifact.actor;
+      const actorId = actor?.id;
       if (!actorId) {
         throw new Error("identity_required: artifact actor identity is missing");
       }
@@ -98,9 +99,13 @@ export class ProvenanceTracker {
         throw new Error(`identity_required: actor identity not found for ${actorId}`);
       }
 
-      if (identity.type !== artifact.actor.type) {
+      if (!actor) {
+        throw new Error("identity_required: artifact actor identity is missing");
+      }
+
+      if (identity.type !== actor.type) {
         throw new Error(
-          `identity_required: actor type mismatch for ${actorId} expected=${identity.type} actual=${artifact.actor.type}`
+          `identity_required: actor type mismatch for ${actorId} expected=${identity.type} actual=${actor.type}`
         );
       }
     }
