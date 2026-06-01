@@ -94,6 +94,20 @@ Install (local dev version)
 npm install ai-control-plane@0.1.0
 ```
 
+---
+
+## Commit governance
+
+All commits that modify code files must include a CPS artifact tag in the commit message, or the `commit-msg` hook will reject the commit.
+
+Use a message format like:
+
+```text
+[CPS:artifact=PROV-2026-000001]
+```
+
+This applies whenever staged files include TypeScript or JavaScript source changes.
+
 
 
 ---
